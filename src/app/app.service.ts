@@ -13,7 +13,7 @@ import { WordVault } from './word-vault.interface';
 export class AppService {
 
   vocabularyState$ = new BehaviorSubject<VocabularyState>({ currentRound: 1, currentQuestion: 1 });
-  changeVocabularyState$ = new Subject<{ indexOfQuestionJustAnswered: number }>();
+  indexOfQuestionJustAnswered$ = new Subject<number>();
 
   constructor(private httpClient: HttpClient) {}
 

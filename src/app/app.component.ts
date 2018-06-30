@@ -1,7 +1,18 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
-import { take, tap, filter, combineLatest, distinctUntilChanged } from 'rxjs/operators';
+import {
+  take,
+  tap,
+  filter,
+  pairwise,
+  map,
+  combineLatest,
+  distinctUntilChanged,
+  distinctUntilKeyChanged,
+  withLatestFrom
+} from 'rxjs/operators';
+import { of } from 'rxjs';
 
 import { AppService } from './app.service';
 import { Round, Question, WordVault } from './word-vault.interface';
@@ -13,7 +24,6 @@ import { VocabularyState } from './vocabulary-state.interface';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
-
   vault$: Observable<WordVault>;
   vocabularyState$: Observable<VocabularyState>;
   @ViewChild('form') form: NgForm;
@@ -45,9 +55,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
     if (answers[correctAnswer - 1] === answer) {
       alert('Correct answer!');
-      this.appService.changeVocabularyState$.next({
+      this.appService.indexOfQuestionJustAnswered$.next(
         indexOfQuestionJustAnswered
-      });
+      );
     } else {
       alert('Try Again!');
       this.form.reset();
@@ -55,33 +65,37 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   observeVocabularyStateChange() {
-    return this.appService.changeVocabularyState$
+    this.appService.indexOfQuestionJustAnswered$
       .pipe(
-        take(1),
-        combineLatest(this.vault$, this.vocabularyState$),
-        tap(([changeVocabularyState, vault, vocabularyState]) =>
+        withLatestFrom(this.vault$),
+        tap(([indexOfQuestionJustAnswered, vault]) => {
+          const vocabularyState = this.appService.vocabularyState$.getValue();
+
           this.handleVocabularStateChange(
             vocabularyState,
-            changeVocabularyState,
+            indexOfQuestionJustAnswered,
             vault
-          )
-        )
+          );
+        })
       )
       .subscribe(() => console.log('observed'));
   }
 
-  handleVocabularStateChange(vocabularyState, changeVocabularyState, vault) {
+  handleVocabularStateChange(
+    vocabularyState,
+    indexOfQuestionJustAnswered,
+    vault
+  ) {
     console.log(vocabularyState);
     let newState: VocabularyState;
     const noOfRounds = Object.keys(vault.rounds).length;
-    const noOfQuestionsInCurrentRound = vault.rounds[
-      vocabularyState.currentRound.toString()
-    ].questions.length;
-    const questionNoJustAnswered = changeVocabularyState.indexOfQuestionJustAnswered + 1;
+    const noOfQuestionsInCurrentRound =
+      vault.rounds[vocabularyState.currentRound.toString()].questions.length;
+    const questionNoJustAnswered = indexOfQuestionJustAnswered + 1;
 
     if (noOfQuestionsInCurrentRound > questionNoJustAnswered) {
       newState = {
-        currentQuestion: vocabularyState.currentQuestion + 1,
+        currentQuestion: questionNoJustAnswered + 1,
         currentRound: vocabularyState.currentRound
       };
     } else {
@@ -96,7 +110,6 @@ export class AppComponent implements OnInit, OnDestroy {
     } else {
       this.appService.vocabularyState$.next(newState);
     }
-
   }
 
   ngOnDestroy() {

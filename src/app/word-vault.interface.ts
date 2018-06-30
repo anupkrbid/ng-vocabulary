@@ -14,7 +14,7 @@ export interface Round {
 export interface Question {
   text: string;
   answers: Answer[];
-  correctAnswer: string;
+  correctAnswer: number;
 }
 
 export enum Answer {

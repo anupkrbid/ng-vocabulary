@@ -1,19 +1,19 @@
-<div *ngFor="let question of (vault | async)?.rounds[(vaultState | async)?.currentRound].questions; let i = index;">
+<div *ngFor="let question of (vault$ | async)?.rounds[(vaultState$ | async)?.currentRound].questions; let i = index;">
 
-  <div *ngIf="i == ((vaultState | async)?.currentQuestion - 1)">
+  <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((vaultState$ | async)?.currentQuestion - 1)">
 
     <span>Question: {{ question.text }} </span>
 
     <div *ngFor="let answer of question.answers">
-      <label class="container">{{ answer }}
-        <input type="radio">
+      <label class="container">
+        <input type="radio" name="answer" [value]="answer" ngModel required> {{ answer }}
       </label>
     </div>
 
-    <button>Reset</button>
-    <button>Submit</button>
+    <button type="reset">Reset</button>
+    <button type="submit" [disabled]="form.invalid">OK</button>
 
-  </div>
+  </form>
 
 <br>
 </div>

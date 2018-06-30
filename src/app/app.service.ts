@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { VaultState } from './vault-state.interface';
+import { VocabularyState } from './vocabulary-state.interface';
 import { WordVault } from './word-vault.interface';
 
 
@@ -12,7 +12,7 @@ import { WordVault } from './word-vault.interface';
 })
 export class AppService {
 
-  vocabularyState = new BehaviorSubject<VaultState>({ currentRound: 1, currentQuestion: 1 });
+  vocabularyState = new BehaviorSubject<VocabularyState>({ currentRound: 1, currentQuestion: 1 });
 
   constructor(private httpClient: HttpClient) {}
 

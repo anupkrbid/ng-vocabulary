@@ -4,8 +4,8 @@ import { Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 import { AppService } from './app.service';
-import { VaultState } from './vault-state.interface';
 import { Round, Question, WordVault } from './word-vault.interface';
+import { VocabularyState } from './vocabulary-state.interface';
 
 @Component({
   selector: 'app-root',
@@ -17,8 +17,8 @@ export class AppComponent implements OnInit, OnDestroy {
   vault$: Observable<WordVault>;
   vaultSubscription: Subscription;
   rounds: { [key: string]: Round };
-  vaultState$: Observable<VaultState>;
-  vaultStateData: VaultState;
+  vaultState$: Observable<VocabularyState>;
+  vaultStateData: VocabularyState;
   vaultStateSubscription: Subscription;
   @ViewChild('form') form: NgForm;
 
@@ -38,7 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     if (answers[correctAnswer - 1] === answer) {
       alert('Correct answer!');
-      let newState: VaultState;
+      let newState: VocabularyState;
       const noOfRounds = Object.keys(this.rounds).length;
       const noOfQuestionsInCurrentRound = this.rounds[this.vaultStateData.currentRound.toString()].questions.length;
 

@@ -1,8 +1,12 @@
+<h3>{{ (vault$ | async)?.title }}</h3>
+
+<h4>{{ (vault$ | async)?.directions }}</h4>
+
 <div *ngFor="let question of (vault$ | async)?.rounds[(vocabularyState$ | async)?.currentRound].questions; let i = index;">
 
   <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((vocabularyState$ | async)?.currentQuestion - 1)">
 
-    <span>Question: {{ question.text }} </span>
+    <h5>{{ question.text }}</h5>
 
     <div *ngFor="let answer of question.answers">
       <label class="container">
@@ -10,10 +14,11 @@
       </label>
     </div>
 
+    <br>
+
     <button type="reset">Reset</button>
     <button type="submit" [disabled]="form.invalid">OK</button>
 
   </form>
 
-<br>
 </div>

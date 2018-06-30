@@ -1,6 +1,6 @@
-<div *ngFor="let question of (vault$ | async)?.rounds[(vaultState$ | async)?.currentRound].questions; let i = index;">
+<div *ngFor="let question of (vault$ | async)?.rounds[(vocabularyState$ | async)?.currentRound].questions; let i = index;">
 
-  <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((vaultState$ | async)?.currentQuestion - 1)">
+  <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((vocabularyState$ | async)?.currentQuestion - 1)">
 
     <span>Question: {{ question.text }} </span>
 

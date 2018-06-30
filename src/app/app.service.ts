@@ -1,4 +1,4 @@
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -12,7 +12,8 @@ import { WordVault } from './word-vault.interface';
 })
 export class AppService {
 
-  vocabularyState = new BehaviorSubject<VocabularyState>({ currentRound: 1, currentQuestion: 1 });
+  vocabularyState$ = new BehaviorSubject<VocabularyState>({ currentRound: 1, currentQuestion: 1 });
+  changeVocabularyState$ = new Subject<{ indexOfQuestionJustAnswered: number }>();
 
   constructor(private httpClient: HttpClient) {}
 

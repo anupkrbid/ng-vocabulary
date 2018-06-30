@@ -1,0 +1,64 @@
+{
+  "title": "Your Turn: Vocabulary",
+  "directions":
+    "Read each sentence. Choose the vocabulary word that best completes the sentence.",
+  "directionsAudio": "dl_vocabulary_completes_sentence_2.mp3",
+  "sfxPool": {
+    "@value": "pool1"
+  },
+  "vaultImage": "photo_ring.jpg",
+  "rounds": {
+    "1": {
+      "questions": [
+        {
+          "text": "The little lost sheep are in ______!",
+          "answers": ["partner", "special", "danger", "splendid"],
+          "correctAnswer": "3"
+        },
+        {
+          "text": "Meg is my ______ in math.",
+          "answers": ["danger", "partner", "splendid", "special"],
+          "correctAnswer": "2"
+        }
+      ]
+    },
+    "2": {
+      "questions": [
+        {
+          "text": "The queen lives in a ______ castle.",
+          "answers": ["partner", "splendid", "danger", "special"],
+          "correctAnswer": "2"
+        },
+        {
+          "text": "My _______ and I will work together as a team.",
+          "answers": ["special", "danger", "partner", "splendid"],
+          "correctAnswer": "3"
+        },
+        {
+          "text": "This hat is _____ because Gran gave it to me.",
+          "answers": ["danger", "partner", "special", "splendid"],
+          "correctAnswer": "3"
+        }
+      ]
+    },
+    "3": {
+      "questions": [
+        {
+          "text": "Small fish may face ______ in the big sea.",
+          "answers": ["splendid", "special", "danger", "partner"],
+          "correctAnswer": "3"
+        },
+        {
+          "text": "I thanked my host for a _____ meal.",
+          "answers": ["splendid", "danger", "special", "partner"],
+          "correctAnswer": "1"
+        },
+        {
+          "text": "He will get ______ glasses to help him see.",
+          "answers": ["danger", "special", "partner", "splendid"],
+          "correctAnswer": "2"
+        }
+      ]
+    }
+  }
+}

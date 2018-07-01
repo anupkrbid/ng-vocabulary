@@ -1,6 +1,6 @@
-<h3>{{ (vault$ | async)?.title }}</h3>
+<h1>{{ (vault$ | async)?.title }}</h1>
 
-<h4>{{ (vault$ | async)?.directions }}</h4>
+<h3>{{ (vault$ | async)?.directions }}</h3>
 
 <app-vault></app-vault>
 
@@ -8,7 +8,7 @@
 
   <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((vocabularyState$ | async)?.currentQuestion - 1)">
 
-    <h5>{{ question.text }}</h5>
+    <h4>{{ question.text }}</h4>
 
     <div *ngFor="let answer of question.answers">
       <label class="container">

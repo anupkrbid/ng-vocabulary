@@ -1,27 +1,13 @@
 export class Frame {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-
-  ox: number; // OFFSET X
-  oy: number; // OFFSET Y
 
   constructor(
-    x: number = 0,
-    y: number = 0,
-    w: number = 1,
-    h: number = 1,
-    ox: number = 0,
-    oy: number = 0
-  ) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.ox = ox;
-    this.oy = oy;
-  }
+    public x: number = 0,
+    public y: number = 0,
+    public w: number = 1,
+    public h: number = 1,
+    public ox: number = 0, // offset x
+    public oy: number = 0 // offset y
+  ) { }
 
   set(x: number, y: number) {
     this.x = x;

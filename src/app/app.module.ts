@@ -4,10 +4,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
+import { VaultComponent } from './vault/vault.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    VaultComponent
   ],
   imports: [
     BrowserModule,

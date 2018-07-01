@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { tap, withLatestFrom } from 'rxjs/operators';
@@ -13,6 +13,7 @@ import { VocabularyState } from './vocabulary-state.interface';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
+
   vault$: Observable<WordVault>;
   vocabularyState$: Observable<VocabularyState>;
   vocabularySubscription: Subscription;
@@ -70,9 +71,9 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {
     let newState: VocabularyState;
     const noOfRounds = Object.keys(vault.rounds).length;
+    const questionNoJustAnswered = indexOfQuestionJustAnswered + 1;
     const noOfQuestionsInCurrentRound =
       vault.rounds[vocabularyState.currentRound.toString()].questions.length;
-    const questionNoJustAnswered = indexOfQuestionJustAnswered + 1;
 
     if (noOfQuestionsInCurrentRound > questionNoJustAnswered) {
       newState = {

@@ -2,6 +2,8 @@
 
 <h4>{{ (vault$ | async)?.directions }}</h4>
 
+<app-vault></app-vault>
+
 <div *ngFor="let question of (vault$ | async)?.rounds[(vocabularyState$ | async)?.currentRound].questions; let i = index;">
 
   <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((vocabularyState$ | async)?.currentQuestion - 1)">

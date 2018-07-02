@@ -5,8 +5,10 @@ import {
   Input,
   ViewChild
 } from '@angular/core';
+import { map, take, retry } from 'rxjs/operators';
 
 import { AnimatedSprite } from './helper-classes/animated-sprite.class';
+import { Frame } from './helper-classes/frame.class';
 import { TextureAtlas } from './helper-classes/texture-atlas.class';
 import { VaultService } from './vault.service';
 
@@ -16,6 +18,7 @@ import { VaultService } from './vault.service';
   styleUrls: ['./vault.component.scss']
 })
 export class VaultComponent implements AfterViewInit {
+
   @Input() width = 516;
   @Input() height = 418;
   @ViewChild('vault') canvas: ElementRef;
@@ -34,33 +37,36 @@ export class VaultComponent implements AfterViewInit {
     canvasEl.width = this.width;
     canvasEl.height = this.height;
 
-    // this.loadAndDrawImage('../../assets/image/photo_ring.jpg');
+    // initial vault image load
+    this.loadAndDrawImage('../../assets/image/lock0001.png');
 
-    this.atlas = new TextureAtlas(
-      '../../assets/db/vault-sprite.png',
-      this.gameLoop.bind(this)
-    );
-    this.sprite = new AnimatedSprite(
-      0,
-      0,
-      456,
-      this.atlas,
-      'lock',
-      this.ctx
-    );
+    this.vaultService
+      .getVaultSpriteSheet()
+      .pipe(
+        take(1),
+        retry(3),
+        map(data => data.frames)
+      )
+      .subscribe((frames: { [index: string]: Frame }) => {
+        this.atlas = new TextureAtlas(
+          frames,
+          '../../assets/image/vault-sprite.png',
+          this.gameLoop.bind(this)
+        );
+        this.sprite = new AnimatedSprite(0, 0, 456, this.atlas, 'lock', this.ctx);
+      });
   }
 
   gameLoop(): void {
-
-    requestAnimationFrame(() => this.gameLoop());
-
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.sprite.draw();
+
+    requestAnimationFrame(() => this.gameLoop());
   }
 
   loadAndDrawImage(url) {
     // Create an image object. This is not attached to the DOM and is not part of the page.
-    const image = new Image();
+    const image: HTMLImageElement = new Image();
 
     // When the image has loaded, draw it to the canvas
     image.onload = () => {

@@ -40,7 +40,7 @@ export class VaultComponent implements AfterViewInit, OnDestroy {
     canvasEl.width = this.width;
     canvasEl.height = this.height;
 
-    // initial vault image ofter canvas load
+    // initial vault image after canvas load
     this.loadAndDrawImage('../../assets/image/lock0001.png');
 
     this.vaultService

@@ -1,0 +1,128 @@
+header {
+  background-image: url("../assets/image/Macaw-2.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  h1 {
+    color: maroon;
+  }
+}
+
+main {
+  background: linear-gradient(to right, #2c3e50, #bdc3c7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+  div {
+    h3 {
+      color: white;
+      margin: 1rem;
+    }
+  }
+
+  section {
+    padding: 1rem;
+
+    form {
+
+      h4 {
+        padding: 1rem 2rem;
+        background: white;
+        border: .25rem solid rgb(147, 147, 147);
+      }
+
+      button {
+          background-color: #16C7DF;
+          border: .2rem solid white;
+          color: white;
+          padding: .25rem 1rem;
+          text-align: center;
+          font-size: 1rem;
+          border-radius: 2rem;
+
+          &:hover {
+            opacity: 0.6
+          }
+      }
+    }
+  }
+}
+
+footer {
+  background: rgb(237, 28, 36);
+  height: 7%;
+
+  ul {
+    text-align: center;
+    list-style: none;
+    margin: 0 auto;
+
+    li {
+      display: inline-block;
+      padding: .5rem;
+
+      span.dot {
+        height: 1rem;
+        width: 1rem;
+        border: 0.5px solid #000;
+        background-color: rgb(237, 28, 36);
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: inset 2px 2px 2px #000;
+      }
+
+      span.dot.active {
+        background-color:#E7EB0C;
+        box-shadow: none;
+      }
+
+      span.dot.previous {
+        background-color: rgb(235, 142, 145);
+      }
+    }
+  }
+}
+
+.separater {
+  background: linear-gradient(to right, orange , yellow, orange);
+  border: 0;
+  height: 0.25rem;
+  margin: 0;
+}
+
+.radio-wraper {
+  margin: 0 0 0.75em 0;
+  background: white;
+  padding: .5rem 1rem;
+  display: block;
+  border-radius: 1.5rem;
+  border: 0.1rem solid rgb(147, 147, 147);
+}
+input[type="radio"] {
+  display: none;
+}
+
+input[type="radio"] + label {
+  color: #4c4c4c;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+
+input[type="radio"] + label span {
+  box-shadow: 0 0 0 2px #cccccc;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin: -1px 7px 0 0;
+  vertical-align: middle;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+input[type="radio"] + label span {
+  background-color: rgb(150, 150, 150);
+  content: url('../assets/image/checkbox-not-checked.png');
+}
+
+input[type="radio"]:checked + label span {
+  background: #E7EB0C;
+  content: url('../assets/image/checkbox.png');
+}

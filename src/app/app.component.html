@@ -1,26 +1,56 @@
-<h1>{{ (vault$ | async)?.title }}</h1>
+<header>
+  <span>logo</span>
+  <h1>{{ (vault$ | async)?.title }}</h1>
+  <span>
+    <button>?</button>
+    <button>X</button>
+  </span>
+</header>
 
-<h3>{{ (vault$ | async)?.directions }}</h3>
+<hr class="separater">
 
-<app-vault></app-vault>
+<main>
+  <div>
+    <button>Vol</button>
+    <h3>{{ (vault$ | async)?.directions }}</h3>
+  </div>
 
-<div *ngFor="let question of (vault$ | async)?.rounds[(vocabularyState$ | async)?.currentRound].questions; let i = index;">
+  <section>
+    <app-vault></app-vault>
+  </section>
 
-  <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((vocabularyState$ | async)?.currentQuestion - 1)">
+  <section>
+    <div *ngFor="let question of (vault$ | async)?.rounds[(vocabularyState$ | async)?.currentRound].questions; let i = index;">
 
-    <h4>{{ question.text }}</h4>
+      <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((vocabularyState$ | async)?.currentQuestion - 1)">
 
-    <div *ngFor="let answer of question.answers">
-      <label class="container">
-        <input type="radio" name="answer" [value]="answer" ngModel required> {{ answer }}
-      </label>
+        <h4>{{ question.text }}</h4>
+
+        <div>
+          <div class="radio-wraper" *ngFor="let answer of question.answers; let j = index;">
+            <input type="radio" [id]="'radio' + j" [value]="answer" name="answer" ngModel required />
+            <label [for]="'radio' + j">
+              <span></span>
+              {{ answer }}
+            </label>
+          </div>
+        </div>
+
+        <button type="reset">Reset</button>
+        <button type="submit" [disabled]="form.invalid">OK</button>
+
+      </form>
+
     </div>
+  </section>
+</main>
 
-    <br>
+<hr class="separater">
 
-    <button type="reset">Reset</button>
-    <button type="submit" [disabled]="form.invalid">OK</button>
-
-  </form>
-
-</div>
+<footer>
+  <ul>
+    <li *ngFor="let roundNo of (noOfRounds$ | async)">
+      <span class="dot" [ngClass]="{ 'previous': ((vocabularyState$ | async)?.currentRound) > roundNo, 'active': ((vocabularyState$ | async)?.currentRound) == roundNo }"></span>
+    </li>
+  </ul>
+</footer>

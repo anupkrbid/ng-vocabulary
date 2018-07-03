@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Observable, Subscription } from 'rxjs';
-import { tap, withLatestFrom } from 'rxjs/operators';
+import { Observable, Subscription, Subject } from 'rxjs';
+import { map, tap, take, withLatestFrom } from 'rxjs/operators';
 
 import { AppService } from './app.service';
 import { Question, WordVault } from './word-vault.interface';
@@ -14,8 +14,8 @@ import { VaultService } from './vault/vault.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
-
   vault$: Observable<WordVault>;
+  noOfRounds$: Observable<any>;
   vocabularyState$: Observable<VocabularyState>;
   vocabularySubscription: Subscription;
   @ViewChild('form') form: NgForm;
@@ -27,7 +27,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.vault$ = this.appService.getWordVault();
+
     this.vocabularyState$ = this.appService.vocabularyState$;
+
+    this.noOfRounds$ = this.vault$.pipe(
+      map(vault => [...Object.keys(vault.rounds)])
+    );
+
     this.observeVocabularyStateChange();
   }
 
@@ -52,7 +58,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   observeVocabularyStateChange() {
-    // this will capture all events when any questoin is answered correctly which will be a number
+    // this will capture all events when any question is answered correctly which will be a number
     this.vocabularySubscription = this.appService.indexOfQuestionJustAnswered$
       .pipe(
         // this will get the laatest values from the word vault

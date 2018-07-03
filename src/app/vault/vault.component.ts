@@ -3,9 +3,11 @@ import {
   Component,
   ElementRef,
   Input,
+  OnDestroy,
   ViewChild
 } from '@angular/core';
 import { map, take, retry } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 import { AnimatedSprite } from './helper-classes/animated-sprite.class';
 import { Frame } from './helper-classes/frame.class';
@@ -17,7 +19,7 @@ import { VaultService } from './vault.service';
   templateUrl: './vault.component.html',
   styleUrls: ['./vault.component.scss']
 })
-export class VaultComponent implements AfterViewInit {
+export class VaultComponent implements AfterViewInit, OnDestroy {
 
   @Input() width = 516;
   @Input() height = 418;
@@ -25,6 +27,7 @@ export class VaultComponent implements AfterViewInit {
   ctx: CanvasRenderingContext2D;
   atlas: TextureAtlas;
   sprite: AnimatedSprite;
+  animationSubscription: Subscription;
 
   constructor(private vaultService: VaultService) {}
 
@@ -37,7 +40,7 @@ export class VaultComponent implements AfterViewInit {
     canvasEl.width = this.width;
     canvasEl.height = this.height;
 
-    // initial vault image load
+    // initial vault image ofter canvas load
     this.loadAndDrawImage('../../assets/image/lock0001.png');
 
     this.vaultService
@@ -48,20 +51,16 @@ export class VaultComponent implements AfterViewInit {
         map(data => data.frames)
       )
       .subscribe((frames: { [index: string]: Frame }) => {
-        this.atlas = new TextureAtlas(
-          frames,
-          '../../assets/image/vault-sprite.png',
-          this.gameLoop.bind(this)
-        );
-        this.sprite = new AnimatedSprite(0, 0, 456, this.atlas, 'lock', this.ctx);
+        const striteImagepath = '../../assets/image/vault-sprite.png';
+        this.atlas = new TextureAtlas(frames, striteImagepath);
+        this.sprite = new AnimatedSprite(0, 0, this.atlas, 'lock', this.ctx);
       });
-  }
 
-  gameLoop(): void {
-    this.ctx.clearRect(0, 0, this.width, this.height);
-    this.sprite.draw();
-
-    requestAnimationFrame(() => this.gameLoop());
+    this.animationSubscription =
+      this.vaultService.executeAnimation
+        .subscribe(
+          data => this.sprite.setFrameRangeAndAnimationEndCallback(data)
+        );
   }
 
   loadAndDrawImage(url) {
@@ -76,5 +75,9 @@ export class VaultComponent implements AfterViewInit {
 
     // Now set the source of the image that we want to load
     image.src = url;
+  }
+
+  ngOnDestroy() {
+    this.animationSubscription.unsubscribe();
   }
 }

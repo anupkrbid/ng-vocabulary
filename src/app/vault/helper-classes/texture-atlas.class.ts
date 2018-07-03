@@ -6,16 +6,15 @@ export class TextureAtlas {
 
   constructor(
     public frames: { [index: string]: Frame } = {},
-    public spriteImagePath: string,
-    public loadCallback: () => void
+    public spriteImagePath: string
   ) {
     this.loadSpriteImage();
   }
 
   protected loadSpriteImage = () => {
 
-    this.image.onload = this.loadCallback;
-    this.image.onerror = this.onImageError;
+    this.image.onload = () => console.log('Image Loaded');
+    this.image.onerror = () => console.error('SPRITE IMAGE LOAD ERROR', this.spriteImagePath);
     this.image.src = this.spriteImagePath;
 
     this.readSpriteSheet(this.frames);
@@ -42,10 +41,6 @@ export class TextureAtlas {
         this.frames[frame] = tempFrame;
       }
     }
-  }
-
-  private onImageError = () => {
-    console.log('SPRITE IMAGE LOAD ERROR', this.spriteImagePath);
   }
 
   public containsFrame = (frameName: string): boolean => {

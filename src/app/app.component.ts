@@ -6,6 +6,7 @@ import { tap, withLatestFrom } from 'rxjs/operators';
 import { AppService } from './app.service';
 import { Question, WordVault } from './word-vault.interface';
 import { VocabularyState } from './vocabulary-state.interface';
+import { VaultService } from './vault/vault.service';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +20,10 @@ export class AppComponent implements OnInit, OnDestroy {
   vocabularySubscription: Subscription;
   @ViewChild('form') form: NgForm;
 
-  constructor(private appService: AppService) {}
+  constructor(
+    private appService: AppService,
+    private vaultService: VaultService
+  ) {}
 
   ngOnInit() {
     this.vault$ = this.appService.getWordVault();
@@ -37,7 +41,7 @@ export class AppComponent implements OnInit, OnDestroy {
     const correctAnswer = question.correctAnswer;
 
     if (answers[correctAnswer - 1] === answer) {
-      alert('Correct answer!');
+      console.log('Correct answer!');
       this.appService.indexOfQuestionJustAnswered$.next(
         indexOfQuestionJustAnswered
       );
@@ -57,12 +61,26 @@ export class AppComponent implements OnInit, OnDestroy {
         tap(([indexOfQuestionJustAnswered, vault]) => {
           // get the last updated value of the vocabulary state
           const vocabularyState = this.appService.vocabularyState$.getValue();
-          // update the new vacabulary state dpending on the previous state
-          this.handleVocabularStateChange(
-            vocabularyState,
-            indexOfQuestionJustAnswered,
-            vault
-          );
+
+          // object which will update the new vacabulary state depending on the previous state
+          const callbackOnAnimationEnd = {
+            arg1: vocabularyState,
+            arg2: indexOfQuestionJustAnswered,
+            arg3: vault,
+            callback: this.handleVocabularStateChange.bind(this)
+          };
+
+          const frameRange =
+            vault.rounds[vocabularyState.currentRound.toString()].questions[
+              vocabularyState.currentQuestion - 1
+            ].frameRange;
+
+          // emit event for vault to perform animation
+          this.vaultService.executeAnimation.next({
+            startFrame: frameRange.start,
+            endFrame: frameRange.end,
+            callbackOnAnimationEnd: callbackOnAnimationEnd
+          });
         })
       )
       .subscribe(() => console.log('observed'));
@@ -92,7 +110,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     if (newState.currentRound > noOfRounds) {
-      alert('Completed');
+      console.log('Completed');
     } else {
       // emiting event to update the vocabulary state with updated state
       this.appService.vocabularyState$.next(newState);

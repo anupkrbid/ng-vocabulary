@@ -7,7 +7,7 @@ export class Frame {
     public h: number = 1,
     public ox: number = 0, // offset x
     public oy: number = 0 // offset y
-  ) { }
+  ) {}
 
   set(x: number, y: number) {
     this.x = x;

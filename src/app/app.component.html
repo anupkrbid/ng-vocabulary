@@ -1,48 +1,59 @@
 <header>
-  <span>logo</span>
+  <img src="../assets//image/logo.png" alt="logo">
   <h1>{{ (vault$ | async)?.title }}</h1>
   <span>
-    <button>?</button>
-    <button>X</button>
+    <button class="btn-icon" type="button">
+      <i class="fa fa-question fa-lg" aria-hidden="true"></i>
+    </button>
+    <button class="btn-icon" type="button">
+      <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+    </button>
   </span>
 </header>
 
 <hr class="separater">
 
 <main>
-  <div>
-    <button>Vol</button>
+  <div class="direction">
+    <button class="btn-icon" type="button">
+      <i class="fa fa-volume-up fa-lg" aria-hidden="true"></i>
+    </button>
     <h3>{{ (vault$ | async)?.directions }}</h3>
   </div>
 
-  <section>
-    <app-vault></app-vault>
-  </section>
+  <div class="vault-options">
+    <section>
+      <app-vault></app-vault>
+    </section>
 
-  <section>
-    <div *ngFor="let question of (vault$ | async)?.rounds[(vocabularyState$ | async)?.currentRound].questions; let i = index;">
+    <section>
+      <div *ngFor="let question of (vault$ | async)?.rounds[(vocabularyState$ | async)?.currentRound].questions; let i = index;">
 
-      <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((vocabularyState$ | async)?.currentQuestion - 1)">
+        <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((vocabularyState$ | async)?.currentQuestion - 1)">
 
-        <h4>{{ question.text }}</h4>
+          <h4>{{ question.text }}</h4>
 
-        <div>
-          <div class="radio-wraper" *ngFor="let answer of question.answers; let j = index;">
-            <input type="radio" [id]="'radio' + j" [value]="answer" name="answer" ngModel required />
-            <label [for]="'radio' + j">
-              <span></span>
-              {{ answer }}
-            </label>
+          <div class="radio-group">
+            <div class="radio-wraper" *ngFor="let answer of question.answers; let j = index;">
+              <input type="radio" [id]="'radio' + j" [value]="answer" name="answer" ngModel required />
+              <label [for]="'radio' + j">
+                <span></span>
+                {{ answer }}
+              </label>
+            </div>
           </div>
-        </div>
 
-        <button type="reset">Reset</button>
-        <button type="submit" [disabled]="form.invalid">OK</button>
+          <div class="button-group">
+            <button type="reset">Reset</button>
+            <button type="submit" [disabled]="form.invalid">OK</button>
+          </div>
 
-      </form>
+        </form>
 
-    </div>
-  </section>
+      </div>
+    </section>
+  </div>
+
 </main>
 
 <hr class="separater">

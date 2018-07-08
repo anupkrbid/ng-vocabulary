@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { Question, WordVault } from './word-vault.interface';
 import { VocabularyState } from './vocabulary-state.interface';
 import { VaultService } from './vault/vault.service';
+import { HelpModalService } from './help-modal/help-modal.service';
 
 @Component({
   selector: 'app-root',
@@ -22,6 +23,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private appService: AppService,
+    private helpModalService: HelpModalService,
     private vaultService: VaultService
   ) {}
 
@@ -121,6 +123,10 @@ export class AppComponent implements OnInit, OnDestroy {
       // emiting event to update the vocabulary state with updated state
       this.appService.vocabularyState$.next(newState);
     }
+  }
+
+  openHelpDialog() {
+    this.helpModalService.open();
   }
 
   ngOnDestroy() {

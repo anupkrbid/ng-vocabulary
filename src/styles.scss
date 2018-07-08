@@ -5,10 +5,15 @@ html{
 
 body {
   margin: 0;
-  display: flex;
-  justify-content: center;
 }
 
 *,*:before,*:after{
   box-sizing: inherit;
+}
+
+.cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+  &.dark-backdrop {
+    background: #000;
+    opacity: 0.75 !important;
+  }
 }

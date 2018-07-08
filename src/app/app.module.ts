@@ -4,19 +4,26 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
+import { CDKModule } from './shared/c-d-k/c-d-k.module';
 import { VaultComponent } from './vault/vault.component';
+import { HelpModalComponent } from './help-modal/help-modal.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    HelpModalComponent,
     VaultComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    CDKModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [
+    HelpModalComponent
+  ]
 })
 export class AppModule { }

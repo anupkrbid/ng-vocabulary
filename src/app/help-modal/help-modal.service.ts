@@ -3,6 +3,7 @@ import { Overlay, OverlayConfig } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 
 import { HelpModalComponent } from './help-modal.component';
+import { HelpModalOverlayRef } from './help-modal-overlay-ref.class';
 
 // Each property can be overridden by the consumer
 interface HelpDialogConfig {
@@ -21,27 +22,35 @@ const DEFAULT_CONFIG: HelpDialogConfig = {
   providedIn: 'root'
 })
 export class HelpModalService {
-
   // Inject overlay service
-  constructor(private overlay: Overlay) { }
+  constructor(private overlay: Overlay) {}
 
   open(config: HelpDialogConfig = {}) {
-
     // Override default configuration
     const dialogConfig = { ...DEFAULT_CONFIG, ...config };
 
     // Returns an OverlayRef (which is a PortalHost)
     const overlayRef = this.createOverlay(dialogConfig);
 
+    // Subscribe to a stream that emits when the backdrop was clicked
+    overlayRef.backdropClick().subscribe(() => dialogRef.close());
+
+    // Instantiate remote control
+    const dialogRef = new HelpModalOverlayRef(overlayRef);
+
     // Create ComponentPortal that can be attached to a PortalHost
     const helpModalPortal = new ComponentPortal(HelpModalComponent);
 
     // Attach ComponentPortal to PortalHost
     overlayRef.attach(helpModalPortal);
+
+    // Return remote control
+    return dialogRef;
   }
 
   private getOverlayConfig(config: HelpDialogConfig): OverlayConfig {
-    const positionStrategy = this.overlay.position()
+    const positionStrategy = this.overlay
+      .position()
       .global()
       .centerHorizontally()
       .centerVertically();
@@ -50,7 +59,7 @@ export class HelpModalService {
       hasBackdrop: config.hasBackdrop,
       backdropClass: config.backdropClass,
       panelClass: config.panelClass,
-      // Other strategies are .noop(), .reposition(), or .close()
+      // Other strategies are .noop() -> default, .reposition(), or .close()
       scrollStrategy: this.overlay.scrollStrategies.block(),
       positionStrategy
     });

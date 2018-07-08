@@ -21,4 +21,9 @@ export class AppService {
     const apiUrl = '../assets/db/word-vault.json';
     return this.httpClient.get<WordVault>(apiUrl);
   }
+
+  getWordVaultHelp(): Observable<WordVault> {
+    const apiUrl = '../assets/db/word-vault-help.json';
+    return this.httpClient.get<any>(apiUrl);
+  }
 }

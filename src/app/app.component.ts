@@ -4,10 +4,11 @@ import { Observable, Subscription, Subject } from 'rxjs';
 import { map, tap, take, withLatestFrom } from 'rxjs/operators';
 
 import { AppService } from './app.service';
+import { HelpModalOverlayRef } from './help-modal/help-modal-overlay-ref.class';
+import { HelpModalService } from './help-modal/help-modal.service';
 import { Question, WordVault } from './word-vault.interface';
 import { VocabularyState } from './vocabulary-state.interface';
 import { VaultService } from './vault/vault.service';
-import { HelpModalService } from './help-modal/help-modal.service';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,9 @@ import { HelpModalService } from './help-modal/help-modal.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
+
   vault$: Observable<WordVault>;
+  vaultHelpSubscription: Subscription;
   noOfRounds$: Observable<any>;
   vocabularyState$: Observable<VocabularyState>;
   vocabularySubscription: Subscription;
@@ -37,6 +40,8 @@ export class AppComponent implements OnInit, OnDestroy {
     );
 
     this.observeVocabularyStateChange();
+
+    this.vaultHelpSubscription = this.appService.getWordVaultHelp().subscribe(data => console.log(data));
   }
 
   onSubmit(
@@ -126,7 +131,8 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   openHelpDialog() {
-    this.helpModalService.open();
+    // Returns a handle to the open overlay
+    const dialogRef: HelpModalOverlayRef = this.helpModalService.open();
   }
 
   ngOnDestroy() {

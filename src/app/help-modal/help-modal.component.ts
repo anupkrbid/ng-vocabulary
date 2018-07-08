@@ -60,4 +60,7 @@ export class HelpModalComponent {
     this.animationState = 'leave';
   }
 
+  closeModal() {
+    this.dialogRef.close();
+  }
 }

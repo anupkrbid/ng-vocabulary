@@ -1,9 +1,61 @@
 :host {
   display: block;
-  background: white;
+  width: 850px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+
+  div {
+    border-radius: 0.5rem;
+  }
 }
 
-h1 {
-  margin: 0;
-  padding: 1em;
+header {
+  background: linear-gradient(to right, rgb(102, 189, 227), rgb(0, 145, 209));
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  border-radius: inherit;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+
+  .btn-icon {
+    border-radius: 50%;
+    border: 0;
+    margin: .25rem;
+    padding: .5rem .7rem;
+    background: linear-gradient(to bottom, rgb(102, 189, 227), rgb(0, 145, 209));
+    color: white;
+    border: .2rem solid white;
+    cursor: pointer;
+  }
 }
+
+section {
+  background: rgb(237, 237, 237);
+  flex-grow: 1;
+  // flex-wrap: wrap
+  border-radius: inherit;
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  aside {
+    background: rgb(255, 255, 255);
+    flex-grow: 2;
+    padding: .5rem;
+    overflow-y: auto;
+    word-wrap: normal;
+  }
+
+  video {
+    flex-grow: 3;
+    width: auto;
+    height: 100%;
+    margin: 0.5rem;
+  }
+}
+

@@ -1,4 +1,10 @@
-import { Component, HostListener, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  OnInit,
+  OnDestroy,
+  ViewChild
+} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { map, tap, take, withLatestFrom } from 'rxjs/operators';
@@ -19,13 +25,13 @@ const ESCAPE = 27;
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
-
   vault$: Observable<WordVault>;
   vaultHelpSubscription: Subscription;
   noOfRounds$: Observable<any>;
   vocabularyState$: Observable<VocabularyState>;
   vocabularySubscription: Subscription;
   dialogRef: HelpModalOverlayRef;
+  helpInfo: string;
   @ViewChild('form') form: NgForm;
 
   // Listen on keydown events on a document level
@@ -53,7 +59,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.observeVocabularyStateChange();
 
-    this.vaultHelpSubscription = this.appService.getWordVaultHelp().subscribe(data => console.log(data));
+    this.vaultHelpSubscription = this.appService
+      .getWordVaultHelp()
+      .pipe(take(1))
+      .subscribe((data: any) => {
+        this.helpInfo = data.text;
+        this.dialogRef = this.helpModalService.open({
+          data: this.helpInfo
+        });
+      });
   }
 
   onSubmit(
@@ -145,7 +159,7 @@ export class AppComponent implements OnInit, OnDestroy {
   openHelpDialog() {
     // Returns a handle to the open overlay
     this.dialogRef = this.helpModalService.open({
-      data: 'Modal Data'
+      data: this.helpInfo
     });
   }
 

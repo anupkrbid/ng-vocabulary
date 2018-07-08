@@ -45,6 +45,9 @@ export class HelpModalService {
 
     const overlayComponent = this.attachDialogContainer(overlayRef, dialogConfig, dialogRef);
 
+    // Pass the instance of the overlay component to the remote control
+    dialogRef.componentInstance = overlayComponent;
+
     // Create ComponentPortal that can be attached to a PortalHost
     // const helpModalPortal = new ComponentPortal(HelpModalComponent);
 

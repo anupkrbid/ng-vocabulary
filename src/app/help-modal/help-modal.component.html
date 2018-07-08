@@ -1,3 +1,5 @@
-<p>
+<p [@slideContent]="animationState"
+   (@slideContent.start)="onAnimationStart($event)"
+   (@slideContent.done)="onAnimationDone($event)">
   help-modal works {{ data }}!
 </p>

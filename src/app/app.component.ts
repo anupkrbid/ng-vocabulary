@@ -132,7 +132,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   openHelpDialog() {
     // Returns a handle to the open overlay
-    const dialogRef: HelpModalOverlayRef = this.helpModalService.open();
+    const dialogRef: HelpModalOverlayRef = this.helpModalService.open({
+      data: 'Modal Data'
+    });
   }
 
   ngOnDestroy() {

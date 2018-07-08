@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { map, tap, take, withLatestFrom } from 'rxjs/operators';
@@ -9,6 +9,9 @@ import { HelpModalService } from './help-modal/help-modal.service';
 import { Question, WordVault } from './word-vault.interface';
 import { VocabularyState } from './vocabulary-state.interface';
 import { VaultService } from './vault/vault.service';
+
+// Keycode for ESCAPE
+const ESCAPE = 27;
 
 @Component({
   selector: 'app-root',
@@ -22,7 +25,16 @@ export class AppComponent implements OnInit, OnDestroy {
   noOfRounds$: Observable<any>;
   vocabularyState$: Observable<VocabularyState>;
   vocabularySubscription: Subscription;
+  dialogRef: HelpModalOverlayRef;
   @ViewChild('form') form: NgForm;
+
+  // Listen on keydown events on a document level
+  @HostListener('document:keydown', ['$event'])
+  private handleKeydown(event: KeyboardEvent) {
+    if (event.keyCode === ESCAPE) {
+      this.dialogRef.close();
+    }
+  }
 
   constructor(
     private appService: AppService,
@@ -132,7 +144,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   openHelpDialog() {
     // Returns a handle to the open overlay
-    const dialogRef: HelpModalOverlayRef = this.helpModalService.open({
+    this.dialogRef = this.helpModalService.open({
       data: 'Modal Data'
     });
   }

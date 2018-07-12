@@ -1,5 +1,5 @@
 :host {
-  width: 900px;
+  width: 996px;
   margin: auto;
   display: flex;
   flex-direction: column;
@@ -16,9 +16,10 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  justify-content: space-around;
 }
 
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 996px) {
   header {
     justify-content: center;
   }
@@ -162,7 +163,6 @@ footer {
 .radio-wraper {
   margin: 0 0 0.75em 0;
   background: white;
-  padding: .5rem 1rem;
   display: block;
   border-radius: 1.5rem;
   border: 0.1rem solid rgb(147, 147, 147);
@@ -180,8 +180,8 @@ input[type="radio"] + label {
 input[type="radio"] + label span {
   box-shadow: 0 0 0 2px #cccccc;
   display: inline-block;
-  width: 24px;
-  height: 24px;
+  width: 35px;
+  height: 35px;
   margin: -1px 7px 0 0;
   vertical-align: middle;
   cursor: pointer;

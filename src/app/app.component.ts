@@ -26,6 +26,8 @@ const ESCAPE = 27;
 })
 export class AppComponent implements OnInit, OnDestroy {
   vault$: Observable<WordVault>;
+  vaultData: WordVault;
+  vaultSubscription: Subscription;
   vaultHelpSubscription: Subscription;
   noOfRounds$: Observable<any>;
   vocabularyState$: Observable<VocabularyState>;
@@ -50,6 +52,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.vault$ = this.appService.getWordVault();
+
+    this.vaultSubscription = this.appService.getWordVault().subscribe(data => this.vaultData = data);
 
     this.vocabularyState$ = this.appService.vocabularyState$;
 
@@ -163,7 +167,13 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  onDirections() {
+    const directionAudio = new Audio(`../assets/audio/${this.vaultData.directionsAudio}`);
+    directionAudio.play();
+  }
+
   ngOnDestroy() {
     this.vocabularySubscription.unsubscribe();
+    this.vaultSubscription.unsubscribe();
   }
 }

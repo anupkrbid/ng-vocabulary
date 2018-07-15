@@ -197,3 +197,10 @@ input[type="radio"]:checked + label span {
   background: #E7EB0C;
   content: url('../assets/image/checkbox.png');
 }
+
+.correct {
+  color: green !important;
+}
+.incorrect {
+  color: red !important;
+}

@@ -27,16 +27,16 @@
     </section>
 
     <section>
-      <div *ngFor="let question of (vaultState$ | async)?.rounds[(vocabularyState$ | async)?.currentRound].questions; let i = index;">
+      <div *ngFor="let question of (vaultState$ | async)?.rounds[(appState$ | async)?.currentRound].questions; let i = index;">
 
-        <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((vocabularyState$ | async)?.currentQuestion - 1)">
+        <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((appState$ | async)?.currentQuestion - 1)">
 
           <h4>{{ question.text }}</h4>
 
           <div class="radio-group">
             <div class="radio-wraper" *ngFor="let answer of question.answers; let j = index;">
               <input type="radio" [id]="'radio' + j" [value]="answer" name="answer" ngModel required />
-              <label [for]="'radio' + j">
+              <label [for]="'radio' + j" [ngClass]="{ 'correct': answerStatus.correct===answer , 'incorrect': answerStatus.incorrect===answer }">
                 <span></span>
                 {{ answer }}
               </label>
@@ -61,7 +61,7 @@
 <footer>
   <ul>
     <li *ngFor="let roundNo of (noOfRounds$ | async)">
-      <span class="dot" [ngClass]="{ 'previous': ((vocabularyState$ | async)?.currentRound) > roundNo, 'active': ((vocabularyState$ | async)?.currentRound) == roundNo }"></span>
+      <span class="dot" [ngClass]="{ 'previous': ((appState$ | async)?.currentRound) > roundNo, 'active': ((appState$ | async)?.currentRound) == roundNo }"></span>
     </li>
   </ul>
 </footer>

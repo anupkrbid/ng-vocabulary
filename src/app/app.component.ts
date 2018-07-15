@@ -28,10 +28,16 @@ export class AppComponent implements OnInit, OnDestroy {
   vaultState$: Observable<WordVault>;
   vaultHelpSubscription: Subscription;
   noOfRounds$: Observable<any>;
+  appState$: Observable<any>;
   vocabularyState$: Observable<VocabularyState>;
   vocabularySubscription: Subscription;
   dialogRef: HelpModalOverlayRef;
   helpInfo: string;
+  noOfWrongAttemps = 0;
+  answerStatus = {
+    correct: null,
+    incorrect: null
+  };
   @ViewChild('form') form: NgForm;
 
   // Listen on keydown events on a document level
@@ -53,6 +59,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.vaultState$ = this.appService.getWordVault().pipe(take(1));
 
     // holds the updated state of the app
+    this.appState$ = this.appService.appState$;
     this.vocabularyState$ = this.appService.vocabularyState$;
 
     // initializing app state
@@ -116,12 +123,36 @@ export class AppComponent implements OnInit, OnDestroy {
     const correctAnswer = question.correctAnswer;
 
     if (answers[correctAnswer - 1] === answer) {
+      this.answerStatus = {
+        correct: answers[correctAnswer - 1],
+        incorrect: null
+      };
       console.log('Correct answer!');
       this.appService.indexOfQuestionAnswered$.next(indexOfQuestionAnswered);
     } else {
-      alert('Try Again!');
-      this.form.reset();
+
+      this.answerStatus = {
+        correct: answers[correctAnswer - 1],
+        incorrect: answer
+      };
+
+      if (++this.noOfWrongAttemps < 2) {
+        alert('Try Again!');
+        this.form.reset();
+      } else {
+        alert('Changing Question!');
+        this.noOfWrongAttemps = 0;
+        const appState = this.appService.appState$.getValue();
+        this.appService.appState$.next({...appState, currentQuestion: appState.currentQuestion + 1});
+      }
     }
+
+    setTimeout(() => {
+      this.answerStatus = {
+        correct: null,
+        incorrect: null
+      };
+    }, 100);
   }
 
   observeVocabularyStateChange() {

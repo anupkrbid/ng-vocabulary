@@ -130,6 +130,7 @@ export class AppComponent implements OnInit, OnDestroy {
         incorrect: null
       };
       console.log('Correct answer!');
+      this.noOfWrongAttemps = 0; // reset correct attempts state
       this.appService.indexOfQuestionAnswered$.next(indexOfQuestionAnswered);
       // this.appService.appState$.next({...appState, currentQuestion: appState.currentQuestion + 1});
     } else {

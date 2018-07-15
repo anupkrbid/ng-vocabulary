@@ -1,6 +1,6 @@
 <header>
   <img src="../assets//image/logo.png" alt="logo">
-  <h1>{{ (vault$ | async)?.title }}</h1>
+  <h1>{{ (vaultState$ | async)?.title }}</h1>
   <span>
     <button class="btn-icon" type="button" (click)="openHelpDialog()">
       <i class="fa fa-question fa-lg" aria-hidden="true"></i>
@@ -18,7 +18,7 @@
     <button class="btn-icon" type="button" (click)="onDirections()">
       <i class="fa fa-volume-up fa-lg" aria-hidden="true"></i>
     </button>
-    <h3>{{ (vault$ | async)?.directions }}</h3>
+    <h3>{{ (vaultState$ | async)?.directions }}</h3>
   </div>
 
   <div class="vault-options">
@@ -27,7 +27,7 @@
     </section>
 
     <section>
-      <div *ngFor="let question of (vault$ | async)?.rounds[(vocabularyState$ | async)?.currentRound].questions; let i = index;">
+      <div *ngFor="let question of (vaultState$ | async)?.rounds[(vocabularyState$ | async)?.currentRound].questions; let i = index;">
 
         <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((vocabularyState$ | async)?.currentQuestion - 1)">
 

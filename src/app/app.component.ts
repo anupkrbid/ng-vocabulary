@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Observable, Subscription, Subject } from 'rxjs';
-import { map, tap, take, withLatestFrom } from 'rxjs/operators';
+import { map, tap, take, withLatestFrom, pluck } from 'rxjs/operators';
 
 import { AppService } from './app.service';
 import { HelpModalOverlayRef } from './help-modal/help-modal-overlay-ref.class';
@@ -25,9 +25,7 @@ const ESCAPE = 27;
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
-  vault$: Observable<WordVault>;
-  vaultData: WordVault;
-  vaultSubscription: Subscription;
+  vaultState$: Observable<WordVault>;
   vaultHelpSubscription: Subscription;
   noOfRounds$: Observable<any>;
   vocabularyState$: Observable<VocabularyState>;
@@ -51,13 +49,11 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.vault$ = this.appService.getWordVault();
-
-    this.vaultSubscription = this.appService.getWordVault().subscribe(data => this.vaultData = data);
+    this.vaultState$ = this.appService.getWordVault();
 
     this.vocabularyState$ = this.appService.vocabularyState$;
 
-    this.noOfRounds$ = this.vault$.pipe(
+    this.noOfRounds$ = this.vaultState$.pipe(
       map(vault => [...Object.keys(vault.rounds)])
     );
 
@@ -99,9 +95,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.vocabularySubscription = this.appService.indexOfQuestionJustAnswered$
       .pipe(
         // this will get the laatest values from the word vault
-        withLatestFrom(this.vault$),
+        withLatestFrom(this.vaultState$),
         // do something with the index of the answered question and the latest values form vault
-        tap(([indexOfQuestionJustAnswered, vault]) => {
+        tap(([indexOfQuestionJustAnswered, vaultState]) => {
           // get the last updated value of the vocabulary state
           const vocabularyState = this.appService.vocabularyState$.getValue();
 
@@ -109,14 +105,13 @@ export class AppComponent implements OnInit, OnDestroy {
           const callbackOnAnimationEnd = {
             arg1: vocabularyState,
             arg2: indexOfQuestionJustAnswered,
-            arg3: vault,
+            arg3: vaultState,
             callback: this.handleVocabularStateChange.bind(this)
           };
 
           const frameRange =
-            vault.rounds[vocabularyState.currentRound.toString()].questions[
-              vocabularyState.currentQuestion - 1
-            ].frameRange;
+            vaultState.rounds[vocabularyState.currentRound.toString()]
+              .questions[vocabularyState.currentQuestion - 1].frameRange;
 
           // emit event for vault to perform animation
           this.vaultService.executeAnimation.next({
@@ -132,13 +127,14 @@ export class AppComponent implements OnInit, OnDestroy {
   handleVocabularStateChange(
     vocabularyState,
     indexOfQuestionJustAnswered,
-    vault
+    vaultState
   ) {
     let newState: VocabularyState;
-    const noOfRounds = Object.keys(vault.rounds).length;
+    const noOfRounds = Object.keys(vaultState.rounds).length;
     const questionNoJustAnswered = indexOfQuestionJustAnswered + 1;
     const noOfQuestionsInCurrentRound =
-      vault.rounds[vocabularyState.currentRound.toString()].questions.length;
+      vaultState.rounds[vocabularyState.currentRound.toString()].questions
+        .length;
 
     if (noOfQuestionsInCurrentRound > questionNoJustAnswered) {
       newState = {
@@ -168,12 +164,12 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onDirections() {
-    const directionAudio = new Audio(`../assets/audio/${this.vaultData.directionsAudio}`);
-    directionAudio.play();
+    this.vaultState$
+      .pipe(pluck('directionsAudio'))
+      .subscribe(audioName => new Audio(`../assets/audio/${audioName}`).play());
   }
 
   ngOnDestroy() {
     this.vocabularySubscription.unsubscribe();
-    this.vaultSubscription.unsubscribe();
   }
 }

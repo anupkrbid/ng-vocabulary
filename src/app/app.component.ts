@@ -7,7 +7,14 @@ import {
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Observable, Subscription, Subject } from 'rxjs';
-import { map, tap, take, withLatestFrom, pluck } from 'rxjs/operators';
+import {
+  map,
+  tap,
+  take,
+  withLatestFrom,
+  pluck,
+  concatMap
+} from 'rxjs/operators';
 
 import { AppService } from './app.service';
 import { HelpModalOverlayRef } from './help-modal/help-modal-overlay-ref.class';
@@ -55,18 +62,33 @@ export class AppComponent implements OnInit, OnDestroy {
     // holds the updated state of the app
     this.vocabularyState$ = this.appService.vocabularyState$;
 
-    // initaill app state
+    // initializing app state
     this.appService
       .getWordVault()
       .pipe(
         take(1),
         pluck('rounds'),
-        map(rounds => {
-          const roundKeys = [...Object.keys(rounds)];
-          return roundKeys.map(key => rounds[key]);
+        map(roundObj => {
+          const initialState = {
+            currentRound: 1,
+            currentQuestion: 1,
+            answerStatus: {}
+          };
+          const animationState = {};
+          for (const key in roundObj) {
+            if (roundObj.hasOwnProperty(key)) {
+              const tempArr = roundObj[key];
+              initialState.answerStatus[key] = tempArr.questions.map(val => false);
+              animationState[key] = tempArr.questions.map(val => val.frameRange);
+            }
+          }
+          return {initialState, animationState};
         })
       )
-      .subscribe(data => console.log(data));
+      .subscribe(state => {
+        this.appService.appState$.next(state.initialState);
+        this.appService.animationState$.next(state.animationState);
+      });
 
     this.noOfRounds$ = this.vaultState$.pipe(
       map(vault => [...Object.keys(vault.rounds)])

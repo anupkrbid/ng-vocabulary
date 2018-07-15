@@ -133,19 +133,19 @@ export class AppComponent implements OnInit, OnDestroy {
       this.appService.indexOfQuestionAnswered$.next(indexOfQuestionAnswered);
       // this.appService.appState$.next({...appState, currentQuestion: appState.currentQuestion + 1});
     } else {
-      // css change to highlight correct and incorrect answer
-      this.answerStatus = {
-        correct: allPossibleAnswers[correctAnswerIndex - 1],
-        incorrect: submittedAnswer
-      };
 
       // check if no of incorrect attempts are greater than 2
       if (++this.noOfWrongAttemps < 2) {
         alert('Try Again!');
         this.form.reset();
       } else {
-        alert('Changing Question!');
         this.noOfWrongAttemps = 0; // reset incorrect attempts state
+
+        // css change to highlight correct and incorrect answer
+        this.answerStatus = {
+          correct: allPossibleAnswers[correctAnswerIndex - 1],
+          incorrect: submittedAnswer
+        };
 
         // emiting event to update the app state when answers was incorrect
         this.getNextPossibleValidState(indexOfQuestionAnswered, false);
@@ -182,14 +182,13 @@ export class AppComponent implements OnInit, OnDestroy {
           };
 
           // getting the start and end frame to preform the vault animaiton
+          const noOfCorrectAnswersGivenForCurrentRound = appState.answerStatus[
+            appState.currentRound.toString()
+          ].filter(data => data).length;
           const frameRange =
             animationState[appState.currentRound.toString()][
-              appState.currentQuestion - 1
+              noOfCorrectAnswersGivenForCurrentRound
             ];
-
-          // const frameRange =
-          //   vaultState.rounds[appState.currentRound.toString()]
-          //     .questions[appState.currentQuestion - 1].frameRange;
 
           // emit event for vault to perform animation
           this.vaultService.executeAnimation.next({
@@ -203,40 +202,11 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   handleAppStateChange(appState, indexOfQuestionAnswered, vaultState) {
-    // let newState = { ...appState };
-    // const noOfRounds = Object.keys(vaultState.rounds).length;
-    // const noOfQuestionsInCurrentRound =
-    //   vaultState.rounds[appState.currentRound.toString()].questions.length;
-
-    // newState.answerStatus[newState.currentRound.toString()][
-    //   newState.currentQuestion - 1
-    // ] = true;
-
-    // const noOfCorrectAnswersGivenInCurrentRound = newState.answerStatus[
-    //   newState.currentRound.toString()
-    // ].filter(a => a === true).length;
-
-    // if (noOfQuestionsInCurrentRound === noOfCorrectAnswersGivenInCurrentRound) {
-    //   newState.currentQuestion = 1;
-    //   newState.currentRound = newState.currentRound + 1;
-    // } else {
-      // newState = this.getNextPossibleValidState(indexOfQuestionAnswered);
-    // }
-
-    // if (newState.currentRound > noOfRounds) {
-    //   console.log('Completed');
-    // } else {
-    //   // emiting event to update the vocabulary state with updated state
-    //   console.log(newState);
-    //   this.appService.appState$.next(newState);
-    // }
     this.getNextPossibleValidState(indexOfQuestionAnswered, true);
   }
 
   getNextPossibleValidState(indexOfQuestionAnswered, answerIsCorrect) {
-
     this.vaultState$.pipe(take(1)).subscribe(vaultState => {
-      // debugger;
       const appState = this.appService.appState$.getValue();
       const newState = { ...appState };
 
@@ -255,7 +225,9 @@ export class AppComponent implements OnInit, OnDestroy {
         newState.currentRound.toString()
       ].filter(a => a === true).length;
 
-      if (noOfQuestionsInCurrentRound === noOfCorrectAnswersGivenInCurrentRound) {
+      if (
+        noOfQuestionsInCurrentRound === noOfCorrectAnswersGivenInCurrentRound
+      ) {
         newState.currentQuestion = 1;
         newState.currentRound = newState.currentRound + 1;
       } else {
@@ -265,17 +237,16 @@ export class AppComponent implements OnInit, OnDestroy {
         const currentRound = newState.currentRound.toString();
 
         do {
-          if (++currentAnsweredQuestionIndex > noOfQuestionsInCurrentRound - 1) {
+          if (
+            ++currentAnsweredQuestionIndex >
+            noOfQuestionsInCurrentRound - 1
+          ) {
             currentAnsweredQuestionIndex = 0;
           }
-        }
-        while (newState.answerStatus[currentRound][currentAnsweredQuestionIndex]);
+        } while (
+          newState.answerStatus[currentRound][currentAnsweredQuestionIndex]
+        );
 
-        // while (newState.answerStatus[currentRound][currentAnsweredQuestionIndex]) {
-        //   if (++currentAnsweredQuestionIndex > noOfQuestionsInCurrentRound - 1) {
-        //     currentAnsweredQuestionIndex = 0;
-        //   }
-        // }
         newState.currentQuestion = currentAnsweredQuestionIndex + 1;
       }
 
@@ -283,14 +254,13 @@ export class AppComponent implements OnInit, OnDestroy {
         console.log('Completed');
       } else {
         // emiting event to update the vocabulary state with updated state
-        console.log(newState);
         this.appService.appState$.next(newState);
       }
     });
   }
 
   onOpenHelpDialog() {
-    // Returns a handle to the open overlay
+    // returns a handle to the open overlay
     this.dialogRef = this.helpModalService.open({
       data: this.helpInfo
     });

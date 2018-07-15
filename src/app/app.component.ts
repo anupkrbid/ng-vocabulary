@@ -10,6 +10,7 @@ import { Observable, Subscription } from 'rxjs';
 import { map, tap, take, withLatestFrom, pluck, filter } from 'rxjs/operators';
 
 import { AppService } from './app.service';
+import { AppState } from './app-state.interface';
 import { HelpModalOverlayRef } from './help-modal/help-modal-overlay-ref.class';
 import { HelpModalService } from './help-modal/help-modal.service';
 import { Question, WordVault } from './word-vault.interface';
@@ -28,7 +29,7 @@ export class AppComponent implements OnInit, OnDestroy {
   vaultState$: Observable<WordVault>;
   vaultHelpSubscription: Subscription;
   noOfRounds$: Observable<any>;
-  appState$: Observable<any>;
+  appState$: Observable<AppState>;
   vocabularyState$: Observable<VocabularyState>;
   vocabularySubscription: Subscription;
   dialogRef: HelpModalOverlayRef;
@@ -147,9 +148,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.noOfWrongAttemps = 0; // reset incorrect attempts state
 
         // emiting event to update the app state when answers was incorrect
-        this.appService.appState$.next(
-          this.getNextPossibleValidState(indexOfQuestionAnswered, false)
-        );
+        this.getNextPossibleValidState(indexOfQuestionAnswered, false);
       }
     }
 
@@ -237,6 +236,7 @@ export class AppComponent implements OnInit, OnDestroy {
   getNextPossibleValidState(indexOfQuestionAnswered, answerIsCorrect) {
 
     this.vaultState$.pipe(take(1)).subscribe(vaultState => {
+      // debugger;
       const appState = this.appService.appState$.getValue();
       const newState = { ...appState };
 
@@ -261,10 +261,6 @@ export class AppComponent implements OnInit, OnDestroy {
       } else {
         const questionNoJustAnswered = indexOfQuestionAnswered + 1;
 
-        newState.answerStatus[newState.currentRound.toString()][
-          newState.currentQuestion - 1
-        ] = true;
-
         let currentAnsweredQuestionIndex = questionNoJustAnswered - 1;
         const currentRound = newState.currentRound.toString();
 
@@ -281,7 +277,6 @@ export class AppComponent implements OnInit, OnDestroy {
         //   }
         // }
         newState.currentQuestion = currentAnsweredQuestionIndex + 1;
-        return newState;
       }
 
       if (newState.currentRound > noOfRounds) {

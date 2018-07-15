@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 
 import { VocabularyState } from './vocabulary-state.interface';
 import { WordVault } from './word-vault.interface';
+import { AppState } from './app-state.interface';
 
 
 @Injectable({
@@ -12,7 +13,7 @@ import { WordVault } from './word-vault.interface';
 })
 export class AppService {
 
-  appState$ = new BehaviorSubject<any>(null);
+  appState$ = new BehaviorSubject<AppState | null>(null);
   animationState$ = new BehaviorSubject<any>(null);
   vocabularyState$ = new BehaviorSubject<VocabularyState>({ currentRound: 1, currentQuestion: 1 });
   indexOfQuestionAnswered$ = new Subject<number>();

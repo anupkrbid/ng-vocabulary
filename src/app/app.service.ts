@@ -12,8 +12,8 @@ import { WordVault } from './word-vault.interface';
 })
 export class AppService {
 
-  appState$ = new BehaviorSubject<VocabularyState | null>(null);
-  animationState$ = new BehaviorSubject<any | null>(null);
+  appState$ = new BehaviorSubject<any>(null);
+  animationState$ = new BehaviorSubject<any>(null);
   vocabularyState$ = new BehaviorSubject<VocabularyState>({ currentRound: 1, currentQuestion: 1 });
   indexOfQuestionAnswered$ = new Subject<number>();
 

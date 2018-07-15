@@ -118,35 +118,38 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(form: NgForm, question: Question, indexOfQuestionAnswered: number) {
-    const answer = form.value.answer;
-    const answers = question.answers;
-    const correctAnswer = question.correctAnswer;
+    const submittedAnswer = form.value.answer;
+    const allPossibleAnswers = question.answers;
+    const correctAnswerIndex = question.correctAnswer - 1;
 
-    if (answers[correctAnswer - 1] === answer) {
+    if (allPossibleAnswers[correctAnswerIndex] === submittedAnswer) {
+      // css change to highlight correct answer
       this.answerStatus = {
-        correct: answers[correctAnswer - 1],
+        correct: allPossibleAnswers[correctAnswerIndex - 1],
         incorrect: null
       };
       console.log('Correct answer!');
       this.appService.indexOfQuestionAnswered$.next(indexOfQuestionAnswered);
       // this.appService.appState$.next({...appState, currentQuestion: appState.currentQuestion + 1});
     } else {
+      // css change to highlight correct and incorrect answer
       this.answerStatus = {
-        correct: answers[correctAnswer - 1],
-        incorrect: answer
+        correct: allPossibleAnswers[correctAnswerIndex - 1],
+        incorrect: submittedAnswer
       };
 
+      // check if no of incorrect attempts are greater than 2
       if (++this.noOfWrongAttemps < 2) {
         alert('Try Again!');
         this.form.reset();
       } else {
         alert('Changing Question!');
-        this.noOfWrongAttemps = 0;
-        const appState = this.appService.appState$.getValue();
-        this.appService.appState$.next({
-          ...appState,
-          currentQuestion: appState.currentQuestion + 1
-        });
+        this.noOfWrongAttemps = 0; // reset incorrect attempts state
+
+        // emiting event to update the app state when answers was incorrect
+        this.appService.appState$.next(
+          this.getNextPossibleValidState(indexOfQuestionAnswered, false)
+        );
       }
     }
 
@@ -201,50 +204,94 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   handleAppStateChange(appState, indexOfQuestionAnswered, vaultState) {
-    const newState = { ...appState };
-    const noOfRounds = Object.keys(vaultState.rounds).length;
-    const questionNoJustAnswered = indexOfQuestionAnswered + 1;
-    const noOfQuestionsInCurrentRound =
-      vaultState.rounds[appState.currentRound.toString()].questions.length;
+    // let newState = { ...appState };
+    // const noOfRounds = Object.keys(vaultState.rounds).length;
+    // const noOfQuestionsInCurrentRound =
+    //   vaultState.rounds[appState.currentRound.toString()].questions.length;
 
-    newState.answerStatus[newState.currentRound.toString()][
-      newState.currentQuestion - 1
-    ] = true;
+    // newState.answerStatus[newState.currentRound.toString()][
+    //   newState.currentQuestion - 1
+    // ] = true;
 
-    const noOfCorrectAnswersGivenInCurrentRound = newState.answerStatus[
-      newState.currentRound.toString()
-    ].filter(a => a === true).length;
+    // const noOfCorrectAnswersGivenInCurrentRound = newState.answerStatus[
+    //   newState.currentRound.toString()
+    // ].filter(a => a === true).length;
 
-    if (noOfQuestionsInCurrentRound === noOfCorrectAnswersGivenInCurrentRound) {
-      newState.currentQuestion = 1;
-      newState.currentRound = newState.currentRound + 1;
-    } else {
-      const noOfQuestions = noOfQuestionsInCurrentRound;
-      let currentAnsweredQuestionIndex = questionNoJustAnswered - 1;
-
-      while (newState.answerStatus[newState.currentRound.toString()][currentAnsweredQuestionIndex]) {
-        if (++currentAnsweredQuestionIndex > noOfQuestions - 1) {
-          currentAnsweredQuestionIndex = 0;
-        }
-      }
-      newState.currentQuestion = currentAnsweredQuestionIndex + 1;
-    }
-
-    // if (noOfQuestionsInCurrentRound > questionNoJustAnswered) {
-    //   newState.currentQuestion = questionNoJustAnswered + 1;
-    //   newState.currentRound = appState.currentRound;
-    // } else {
+    // if (noOfQuestionsInCurrentRound === noOfCorrectAnswersGivenInCurrentRound) {
     //   newState.currentQuestion = 1;
-    //   newState.currentRound = appState.currentRound + 1;
+    //   newState.currentRound = newState.currentRound + 1;
+    // } else {
+      // newState = this.getNextPossibleValidState(indexOfQuestionAnswered);
     // }
 
-    if (newState.currentRound > noOfRounds) {
-      console.log('Completed');
-    } else {
-      // emiting event to update the vocabulary state with updated state
-      console.log(newState);
-      this.appService.appState$.next(newState);
-    }
+    // if (newState.currentRound > noOfRounds) {
+    //   console.log('Completed');
+    // } else {
+    //   // emiting event to update the vocabulary state with updated state
+    //   console.log(newState);
+    //   this.appService.appState$.next(newState);
+    // }
+    this.getNextPossibleValidState(indexOfQuestionAnswered, true);
+  }
+
+  getNextPossibleValidState(indexOfQuestionAnswered, answerIsCorrect) {
+
+    this.vaultState$.pipe(take(1)).subscribe(vaultState => {
+      const appState = this.appService.appState$.getValue();
+      const newState = { ...appState };
+
+      const noOfRounds = Object.keys(vaultState.rounds).length;
+
+      const noOfQuestionsInCurrentRound =
+        vaultState.rounds[appState.currentRound.toString()].questions.length;
+
+      if (answerIsCorrect) {
+        newState.answerStatus[newState.currentRound.toString()][
+          newState.currentQuestion - 1
+        ] = true;
+      }
+
+      const noOfCorrectAnswersGivenInCurrentRound = newState.answerStatus[
+        newState.currentRound.toString()
+      ].filter(a => a === true).length;
+
+      if (noOfQuestionsInCurrentRound === noOfCorrectAnswersGivenInCurrentRound) {
+        newState.currentQuestion = 1;
+        newState.currentRound = newState.currentRound + 1;
+      } else {
+        const questionNoJustAnswered = indexOfQuestionAnswered + 1;
+
+        newState.answerStatus[newState.currentRound.toString()][
+          newState.currentQuestion - 1
+        ] = true;
+
+        let currentAnsweredQuestionIndex = questionNoJustAnswered - 1;
+        const currentRound = newState.currentRound.toString();
+
+        do {
+          if (++currentAnsweredQuestionIndex > noOfQuestionsInCurrentRound - 1) {
+            currentAnsweredQuestionIndex = 0;
+          }
+        }
+        while (newState.answerStatus[currentRound][currentAnsweredQuestionIndex]);
+
+        // while (newState.answerStatus[currentRound][currentAnsweredQuestionIndex]) {
+        //   if (++currentAnsweredQuestionIndex > noOfQuestionsInCurrentRound - 1) {
+        //     currentAnsweredQuestionIndex = 0;
+        //   }
+        // }
+        newState.currentQuestion = currentAnsweredQuestionIndex + 1;
+        return newState;
+      }
+
+      if (newState.currentRound > noOfRounds) {
+        console.log('Completed');
+      } else {
+        // emiting event to update the vocabulary state with updated state
+        console.log(newState);
+        this.appService.appState$.next(newState);
+      }
+    });
   }
 
   onOpenHelpDialog() {

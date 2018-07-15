@@ -6,15 +6,8 @@ import {
   ViewChild
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Observable, Subscription, Subject } from 'rxjs';
-import {
-  map,
-  tap,
-  take,
-  withLatestFrom,
-  pluck,
-  concatMap
-} from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
+import { map, tap, take, withLatestFrom, pluck } from 'rxjs/operators';
 
 import { AppService } from './app.service';
 import { HelpModalOverlayRef } from './help-modal/help-modal-overlay-ref.class';
@@ -64,12 +57,16 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // initializing app state
     this.appService
+      // get vault state
       .getWordVault()
       .pipe(
+        // unsubscribe after getting one value
         take(1),
+        // get round data
         pluck('rounds'),
+        // transform round data to the initial app and animation state
         map(roundObj => {
-          const initialState = {
+          const appState = {
             currentRound: 1,
             currentQuestion: 1,
             answerStatus: {}
@@ -78,18 +75,22 @@ export class AppComponent implements OnInit, OnDestroy {
           for (const key in roundObj) {
             if (roundObj.hasOwnProperty(key)) {
               const tempArr = roundObj[key];
-              initialState.answerStatus[key] = tempArr.questions.map(val => false);
-              animationState[key] = tempArr.questions.map(val => val.frameRange);
+              appState.answerStatus[key] = tempArr.questions.map(val => false);
+              animationState[key] = tempArr.questions.map(
+                val => val.frameRange
+              );
             }
           }
-          return {initialState, animationState};
+          return { appState, animationState };
         })
       )
+      // emiting events to initialize initial app and animation state
       .subscribe(state => {
-        this.appService.appState$.next(state.initialState);
+        this.appService.appState$.next(state.appState);
         this.appService.animationState$.next(state.animationState);
       });
 
+    // creating an array of all the rounds
     this.noOfRounds$ = this.vaultState$.pipe(
       map(vault => [...Object.keys(vault.rounds)])
     );
@@ -109,20 +110,14 @@ export class AppComponent implements OnInit, OnDestroy {
       });
   }
 
-  onSubmit(
-    form: NgForm,
-    question: Question,
-    indexOfQuestionJustAnswered: number
-  ) {
+  onSubmit(form: NgForm, question: Question, indexOfQuestionAnswered: number) {
     const answer = form.value.answer;
     const answers = question.answers;
     const correctAnswer = question.correctAnswer;
 
     if (answers[correctAnswer - 1] === answer) {
       console.log('Correct answer!');
-      this.appService.indexOfQuestionJustAnswered$.next(
-        indexOfQuestionJustAnswered
-      );
+      this.appService.indexOfQuestionAnswered$.next(indexOfQuestionAnswered);
     } else {
       alert('Try Again!');
       this.form.reset();
@@ -131,19 +126,19 @@ export class AppComponent implements OnInit, OnDestroy {
 
   observeVocabularyStateChange() {
     // this will capture all events when any question is answered correctly which will be a number
-    this.vocabularySubscription = this.appService.indexOfQuestionJustAnswered$
+    this.vocabularySubscription = this.appService.indexOfQuestionAnswered$
       .pipe(
         // this will get the latest values from the word vault
         withLatestFrom(this.vaultState$),
         // do something with the index of the answered question and the latest values form vault
-        tap(([indexOfQuestionJustAnswered, vaultState]) => {
+        tap(([indexOfQuestionAnswered, vaultState]) => {
           // get the last updated value of the vocabulary state
           const vocabularyState = this.appService.vocabularyState$.getValue();
 
           // object which will update the new vacabulary state depending on the previous state
           const callbackOnAnimationEnd = {
             arg1: vocabularyState,
-            arg2: indexOfQuestionJustAnswered,
+            arg2: indexOfQuestionAnswered,
             arg3: vaultState,
             callback: this.handleVocabularStateChange.bind(this)
           };
@@ -165,12 +160,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
   handleVocabularStateChange(
     vocabularyState,
-    indexOfQuestionJustAnswered,
+    indexOfQuestionAnswered,
     vaultState
   ) {
     let newState: VocabularyState;
     const noOfRounds = Object.keys(vaultState.rounds).length;
-    const questionNoJustAnswered = indexOfQuestionJustAnswered + 1;
+    const questionNoJustAnswered = indexOfQuestionAnswered + 1;
     const noOfQuestionsInCurrentRound =
       vaultState.rounds[vocabularyState.currentRound.toString()].questions
         .length;
@@ -195,7 +190,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  openHelpDialog() {
+  onOpenHelpDialog() {
     // Returns a handle to the open overlay
     this.dialogRef = this.helpModalService.open({
       data: this.helpInfo

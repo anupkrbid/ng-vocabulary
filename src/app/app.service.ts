@@ -15,7 +15,7 @@ export class AppService {
   appState$ = new BehaviorSubject<VocabularyState | null>(null);
   animationState$ = new BehaviorSubject<any | null>(null);
   vocabularyState$ = new BehaviorSubject<VocabularyState>({ currentRound: 1, currentQuestion: 1 });
-  indexOfQuestionJustAnswered$ = new Subject<number>();
+  indexOfQuestionAnswered$ = new Subject<number>();
 
   constructor(private httpClient: HttpClient) {}
 

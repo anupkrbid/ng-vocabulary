@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
-import { map, tap, take, withLatestFrom, pluck } from 'rxjs/operators';
+import { map, tap, take, withLatestFrom, pluck, filter } from 'rxjs/operators';
 
 import { AppService } from './app.service';
 import { HelpModalOverlayRef } from './help-modal/help-modal-overlay-ref.class';
@@ -129,8 +129,8 @@ export class AppComponent implements OnInit, OnDestroy {
       };
       console.log('Correct answer!');
       this.appService.indexOfQuestionAnswered$.next(indexOfQuestionAnswered);
+      // this.appService.appState$.next({...appState, currentQuestion: appState.currentQuestion + 1});
     } else {
-
       this.answerStatus = {
         correct: answers[correctAnswer - 1],
         incorrect: answer
@@ -143,7 +143,10 @@ export class AppComponent implements OnInit, OnDestroy {
         alert('Changing Question!');
         this.noOfWrongAttemps = 0;
         const appState = this.appService.appState$.getValue();
-        this.appService.appState$.next({...appState, currentQuestion: appState.currentQuestion + 1});
+        this.appService.appState$.next({
+          ...appState,
+          currentQuestion: appState.currentQuestion + 1
+        });
       }
     }
 
@@ -163,20 +166,28 @@ export class AppComponent implements OnInit, OnDestroy {
         withLatestFrom(this.vaultState$),
         // do something with the index of the answered question and the latest values form vault
         tap(([indexOfQuestionAnswered, vaultState]) => {
-          // get the last updated value of the vocabulary state
-          const vocabularyState = this.appService.vocabularyState$.getValue();
+          // get the last updated value of the app state
+          const appState = this.appService.appState$.getValue();
+          // get the animation state table
+          const animationState = this.appService.animationState$.getValue();
 
-          // object which will update the new vacabulary state depending on the previous state
+          // object which will update the new app state depending on the previous state
           const callbackOnAnimationEnd = {
-            arg1: vocabularyState,
+            arg1: appState,
             arg2: indexOfQuestionAnswered,
             arg3: vaultState,
-            callback: this.handleVocabularStateChange.bind(this)
+            callback: this.handleAppStateChange.bind(this)
           };
 
+          // getting the start and end frame to preform the vault animaiton
           const frameRange =
-            vaultState.rounds[vocabularyState.currentRound.toString()]
-              .questions[vocabularyState.currentQuestion - 1].frameRange;
+            animationState[appState.currentRound.toString()][
+              appState.currentQuestion - 1
+            ];
+
+          // const frameRange =
+          //   vaultState.rounds[appState.currentRound.toString()]
+          //     .questions[appState.currentQuestion - 1].frameRange;
 
           // emit event for vault to perform animation
           this.vaultService.executeAnimation.next({
@@ -189,35 +200,50 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe(() => console.log('observed'));
   }
 
-  handleVocabularStateChange(
-    vocabularyState,
-    indexOfQuestionAnswered,
-    vaultState
-  ) {
-    let newState: VocabularyState;
+  handleAppStateChange(appState, indexOfQuestionAnswered, vaultState) {
+    const newState = { ...appState };
     const noOfRounds = Object.keys(vaultState.rounds).length;
     const questionNoJustAnswered = indexOfQuestionAnswered + 1;
     const noOfQuestionsInCurrentRound =
-      vaultState.rounds[vocabularyState.currentRound.toString()].questions
-        .length;
+      vaultState.rounds[appState.currentRound.toString()].questions.length;
 
-    if (noOfQuestionsInCurrentRound > questionNoJustAnswered) {
-      newState = {
-        currentQuestion: questionNoJustAnswered + 1,
-        currentRound: vocabularyState.currentRound
-      };
+    newState.answerStatus[newState.currentRound.toString()][
+      newState.currentQuestion - 1
+    ] = true;
+
+    const noOfCorrectAnswersGivenInCurrentRound = newState.answerStatus[
+      newState.currentRound.toString()
+    ].filter(a => a === true).length;
+
+    if (noOfQuestionsInCurrentRound === noOfCorrectAnswersGivenInCurrentRound) {
+      newState.currentQuestion = 1;
+      newState.currentRound = newState.currentRound + 1;
     } else {
-      newState = {
-        currentQuestion: 1,
-        currentRound: vocabularyState.currentRound + 1
-      };
+      const noOfQuestions = noOfQuestionsInCurrentRound;
+      let currentAnsweredQuestionIndex = questionNoJustAnswered - 1;
+
+      while (newState.answerStatus[newState.currentRound.toString()][currentAnsweredQuestionIndex]) {
+        if (++currentAnsweredQuestionIndex > noOfQuestions - 1) {
+          currentAnsweredQuestionIndex = 0;
+        }
+      }
+      newState.currentQuestion = currentAnsweredQuestionIndex + 1;
     }
+
+    // if (noOfQuestionsInCurrentRound > questionNoJustAnswered) {
+    //   newState.currentQuestion = questionNoJustAnswered + 1;
+    //   newState.currentRound = appState.currentRound;
+    // } else {
+    //   newState.currentQuestion = 1;
+    //   newState.currentRound = appState.currentRound + 1;
+    // }
 
     if (newState.currentRound > noOfRounds) {
       console.log('Completed');
     } else {
       // emiting event to update the vocabulary state with updated state
-      this.appService.vocabularyState$.next(newState);
+      console.log(newState);
+      this.appService.appState$.next(newState);
     }
   }
 

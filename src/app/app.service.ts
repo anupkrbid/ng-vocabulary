@@ -12,6 +12,16 @@ import { WordVault } from './word-vault.interface';
 })
 export class AppService {
 
+  initialState = {
+    currentRound: 1,
+    currentQuestion: 1,
+    answerStatus: {
+      '1': [false, false],
+      '2': [false, false, false],
+      '3': [false, false, false]
+    }
+  };
+  appState$ = new BehaviorSubject<VocabularyState | null>(null);
   vocabularyState$ = new BehaviorSubject<VocabularyState>({ currentRound: 1, currentQuestion: 1 });
   indexOfQuestionJustAnswered$ = new Subject<number>();
 

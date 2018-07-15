@@ -49,16 +49,33 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.vaultState$ = this.appService.getWordVault();
+    // vault state
+    this.vaultState$ = this.appService.getWordVault().pipe(take(1));
 
+    // holds the updated state of the app
     this.vocabularyState$ = this.appService.vocabularyState$;
+
+    // initaill app state
+    this.appService
+      .getWordVault()
+      .pipe(
+        take(1),
+        pluck('rounds'),
+        map(rounds => {
+          const roundKeys = [...Object.keys(rounds)];
+          return roundKeys.map(key => rounds[key]);
+        })
+      )
+      .subscribe(data => console.log(data));
 
     this.noOfRounds$ = this.vaultState$.pipe(
       map(vault => [...Object.keys(vault.rounds)])
     );
 
+    // observes the state change of the app and dose the required animation
     this.observeVocabularyStateChange();
 
+    // open modal when app initializes
     this.vaultHelpSubscription = this.appService
       .getWordVaultHelp()
       .pipe(take(1))
@@ -94,7 +111,7 @@ export class AppComponent implements OnInit, OnDestroy {
     // this will capture all events when any question is answered correctly which will be a number
     this.vocabularySubscription = this.appService.indexOfQuestionJustAnswered$
       .pipe(
-        // this will get the laatest values from the word vault
+        // this will get the latest values from the word vault
         withLatestFrom(this.vaultState$),
         // do something with the index of the answered question and the latest values form vault
         tap(([indexOfQuestionJustAnswered, vaultState]) => {
@@ -165,7 +182,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onDirections() {
     this.vaultState$
-      .pipe(pluck('directionsAudio'))
+      .pipe(
+        take(1),
+        pluck('directionsAudio')
+      )
       .subscribe(audioName => new Audio(`../assets/audio/${audioName}`).play());
   }
 

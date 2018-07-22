@@ -16,6 +16,7 @@ import { HelpModalService } from './help-modal/help-modal.service';
 import { Question, WordVault } from './word-vault.interface';
 import { VocabularyState } from './vocabulary-state.interface';
 import { VaultService } from './vault/vault.service';
+import { AudioService } from './audio.service';
 
 // Keycode for ESCAPE
 const ESCAPE = 27;
@@ -51,6 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private appService: AppService,
+    private audioService: AudioService,
     private helpModalService: HelpModalService,
     private vaultService: VaultService
   ) {}
@@ -134,7 +136,6 @@ export class AppComponent implements OnInit, OnDestroy {
       this.appService.indexOfQuestionAnswered$.next(indexOfQuestionAnswered);
       // this.appService.appState$.next({...appState, currentQuestion: appState.currentQuestion + 1});
     } else {
-
       // check if no of incorrect attempts are greater than 2
       if (++this.noOfWrongAttemps < 2) {
         alert('Try Again!');
@@ -273,7 +274,11 @@ export class AppComponent implements OnInit, OnDestroy {
         take(1),
         pluck('directionsAudio')
       )
-      .subscribe(audioName => new Audio(`../assets/audio/${audioName}`).play());
+      .subscribe(audioName =>
+        this.audioService
+          .play(`../assets/audio/${audioName}`)
+          .subscribe(d => console.log(d))
+      );
   }
 
   ngOnDestroy() {

@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { AudioService } from './audio-test.service';
+import { AudioService } from './audio.service';
 
 describe('AudioService', () => {
   beforeEach(() => {

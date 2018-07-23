@@ -274,11 +274,7 @@ export class AppComponent implements OnInit, OnDestroy {
         take(1),
         pluck('directionsAudio')
       )
-      .subscribe(audioName =>
-        this.audioService
-          .play(`../assets/audio/${audioName}`)
-          .subscribe(d => console.log(d))
-      );
+      .subscribe(audioName => this.audioService.play(`../assets/audio/${audioName}`));
   }
 
   ngOnDestroy() {

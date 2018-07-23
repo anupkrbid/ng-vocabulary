@@ -92,5 +92,33 @@
         }
       ]
     }
+  },
+  "audio": {
+    "correct": [
+      "awesome_1.mp3",
+      "brilliant_1.mp3",
+      "excellent_work_1.mp3",
+      "fantastic_1.mp3",
+      "good_job_1.mp3",
+      "great_job.mp3",
+      "nice_work_1.mp3",
+      "ok_1.mp3",
+      "ok_try_another_1.mp3",
+      "super_1.mp3",
+      "terrific_1.mp3",
+      "thats_it_another.mp3",
+      "well_done_1.mp3",
+      "wonderful_1.mp3",
+      "you_got_it_1.mp3"
+    ],
+    "incorrect": "not_quite_correct_answer_1.mp3",
+    "retry": [
+      "not_it_try_again_1.mp3",
+      "not_quite_keep_trying_1.mp3",
+      "oops_another_try_1.mp3",
+      "sorry_try_again_1.mp3"
+    ],
+    "retryCorrect": "now_you_got_it_1.mp3",
+    "questionChange": "Swoosh_long.mp3"
   }
 }

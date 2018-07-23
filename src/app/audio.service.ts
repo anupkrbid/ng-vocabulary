@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { fromEvent, Observable, Observer, Subject, Subscription } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -8,8 +8,15 @@ import { takeUntil } from 'rxjs/operators';
 export class AudioService {
   private audio: HTMLAudioElement = new Audio();
   private stop$ = new Subject();
+  private play$ = new Subject<string>();
 
-  constructor() {}
+  constructor() {
+    this.play$.subscribe(d => console.log(d));
+    this.play$.pipe(switchMap((url) => {
+      console.log(url);
+      return this.playback(url).pipe(takeUntil(this.stop$));
+    })).subscribe();
+  }
 
   playback(src: string) {
     const mediaEvents: { [key: string]: Observable<any> } = {};
@@ -269,7 +276,7 @@ export class AudioService {
       mediaEventSubscriptions.timeupdateSubscription = mediaEvents.timeupdate$.subscribe(
         () => {
           playerMetaData.currentTime = this.audio.currentTime;
-          playerMetaData.buffered = this.audio.buffered.end(0);
+          // playerMetaData.buffered = this.audio.buffered.end(0);
           observer.next(playerMetaData);
           console.log('timeupdate event fired!');
         }
@@ -307,7 +314,8 @@ export class AudioService {
   }
 
   play(src: string) {
-    return this.playback(src).pipe(takeUntil(this.stop$));
+    console.log('play');
+    this.play$.next(src);
   }
 
   stop() {

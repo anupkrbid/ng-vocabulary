@@ -9,13 +9,13 @@ export class AudioService {
   private audio: HTMLAudioElement = new Audio();
   private stop$ = new Subject();
   private play$ = new Subject<string>();
+  audioInfo = new Subject<any>();
 
   constructor() {
     this.play$.subscribe(d => console.log(d));
-    this.play$.pipe(switchMap((url) => {
-      console.log(url);
-      return this.playback(url).pipe(takeUntil(this.stop$));
-    })).subscribe();
+    this.play$
+      .pipe(switchMap(url => this.playback(url).pipe(takeUntil(this.stop$))))
+      .subscribe(data => this.audioInfo.next(data));
   }
 
   playback(src: string) {
@@ -150,7 +150,7 @@ export class AudioService {
       // 'ended' //	Fires when the current playlist is ended
       mediaEventSubscriptions.endedSubscription = mediaEvents.ended$.subscribe(
         () => {
-          alert('ended');
+          // alert('ended');
           playerMetaData.ended = true;
           observer.next(playerMetaData);
           console.log('ended event fired!');
@@ -314,8 +314,7 @@ export class AudioService {
   }
 
   play(src: string) {
-    console.log('play');
-    this.play$.next(src);
+    return this.play$.next(src);
   }
 
   stop() {

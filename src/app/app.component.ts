@@ -21,6 +21,11 @@ import { AudioService } from './audio.service';
 // Keycode for ESCAPE
 const ESCAPE = 27;
 
+// Pick a random Audio
+const pickRandomAudio = audioArray => {
+  return audioArray[Math.floor(Math.random() * audioArray.length)];
+};
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -138,8 +143,23 @@ export class AppComponent implements OnInit, OnDestroy {
     } else {
       // check if no of incorrect attempts are greater than 2
       if (++this.noOfWrongAttemps < 2) {
-        alert('Try Again!');
-        this.form.reset();
+        // alert('Try Again!');
+        // reset fomr after audio has finished
+        this.audioService.audioInfo.subscribe(audio => {
+          if (audio.ended) {
+            this.form.reset();
+          }
+        });
+        this.vaultState$
+          .pipe(
+            take(1),
+            pluck('audio', 'retry')
+          )
+          .subscribe(audioArray =>
+            this.audioService.play(
+              `../assets/audio/sfx/${pickRandomAudio(audioArray)}`
+            )
+          );
       } else {
         this.noOfWrongAttemps = 0; // reset incorrect attempts state
 
@@ -274,7 +294,9 @@ export class AppComponent implements OnInit, OnDestroy {
         take(1),
         pluck('directionsAudio')
       )
-      .subscribe(audioName => this.audioService.play(`../assets/audio/${audioName}`));
+      .subscribe(audioName =>
+        this.audioService.play(`../assets/audio/${audioName}`)
+      );
   }
 
   ngOnDestroy() {

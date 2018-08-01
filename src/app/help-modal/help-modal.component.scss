@@ -1,6 +1,6 @@
 :host {
   display: block;
-  width: 850px;
+  width: 950px;
   height: 600px;
   display: flex;
   flex-direction: column;
@@ -23,11 +23,15 @@ header {
   .btn-icon {
     border-radius: 50%;
     border: 0;
-    margin: .25rem;
-    padding: .5rem .7rem;
-    background: linear-gradient(to bottom, rgb(102, 189, 227), rgb(0, 145, 209));
+    margin: 0.25rem;
+    padding: 0.5rem 0.7rem;
+    background: linear-gradient(
+      to bottom,
+      rgb(102, 189, 227),
+      rgb(0, 145, 209)
+    );
     color: white;
-    border: .2rem solid white;
+    border: 0.2rem solid white;
     cursor: pointer;
   }
 }
@@ -46,10 +50,10 @@ section {
   aside {
     background: rgb(255, 255, 255);
     flex-grow: 2;
-    padding: .5rem;
+    padding: 0.5rem;
     overflow-y: auto;
     word-wrap: normal;
-    border-bottom-left-radius: .5rem;
+    border-bottom-left-radius: 0.5rem;
   }
 
   video {
@@ -59,4 +63,3 @@ section {
     margin: 0.5rem;
   }
 }
-

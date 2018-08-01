@@ -45,6 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
     correct: null,
     incorrect: null
   };
+  audioSubscription: Subscription;
   @ViewChild('form') form: NgForm;
 
   // Listen on keydown events on a document level
@@ -130,26 +131,65 @@ export class AppComponent implements OnInit, OnDestroy {
     const allPossibleAnswers = question.answers;
     const correctAnswerIndex = question.correctAnswer - 1;
 
-    if (allPossibleAnswers[correctAnswerIndex] === submittedAnswer) {
-      // css change to highlight correct answer
-      this.answerStatus = {
-        correct: allPossibleAnswers[correctAnswerIndex - 1],
-        incorrect: null
-      };
-      console.log('Correct answer!');
-      this.noOfWrongAttemps = 0; // reset correct attempts state
-      this.appService.indexOfQuestionAnswered$.next(indexOfQuestionAnswered);
-      // this.appService.appState$.next({...appState, currentQuestion: appState.currentQuestion + 1});
-    } else {
-      // check if no of incorrect attempts are greater than 2
-      if (++this.noOfWrongAttemps < 2) {
-        // alert('Try Again!');
-        // reset fomr after audio has finished
-        this.audioService.audioInfo.subscribe(audio => {
-          if (audio.ended) {
-            this.form.reset();
+    // reset form and reset answer indication for incorrect attempt after audio has finished
+    this.audioSubscription = this.audioService.audioInfo.subscribe(audio => {
+      if (audio.ended) {
+        this.form.reset();
+        this.audioSubscription.unsubscribe();
+        this.answerStatus = {
+          correct: null,
+          incorrect: null
+        };
+
+        // answer correct in first attempt
+        if (allPossibleAnswers[correctAnswerIndex] === submittedAnswer) {
+          this.noOfWrongAttemps = 0; // reset correct attempts state
+          this.appService.indexOfQuestionAnswered$.next(
+            indexOfQuestionAnswered
+          );
+          // this.appService.appState$.next({...appState, currentQuestion: appState.currentQuestion + 1});
+        } else {
+          // check if incorrect answer on first attempts
+          if (this.noOfWrongAttemps === 2) {
+            this.noOfWrongAttemps = 0; // reset incorrect attempts state
+
+            // emiting event to update the app state when answers was incorrect
+            this.getNextPossibleValidState(indexOfQuestionAnswered, false);
           }
-        });
+        }
+      }
+    });
+
+    // choose audio to play based on answer status
+    if (allPossibleAnswers[correctAnswerIndex] === submittedAnswer) {
+      // check if correct anser in second attempt
+      if (this.noOfWrongAttemps === 1) {
+        // play audio
+        this.vaultState$
+          .pipe(
+            take(1),
+            pluck('audio', 'retryCorrect')
+          )
+          .subscribe(audioName =>
+            this.audioService.play(`../assets/audio/sfx/${audioName}`)
+          );
+      } else {
+        // play audio
+        this.vaultState$
+          .pipe(
+            take(1),
+            pluck('audio', 'correct')
+          )
+          .subscribe(audioArray =>
+            this.audioService.play(
+              `../assets/audio/sfx/${pickRandomAudio(audioArray)}`
+            )
+          );
+      }
+    } else {
+      // check if incorrect answer on first attempts
+      if (++this.noOfWrongAttemps < 2) {
+        // play audio
         this.vaultState$
           .pipe(
             take(1),
@@ -161,25 +201,23 @@ export class AppComponent implements OnInit, OnDestroy {
             )
           );
       } else {
-        this.noOfWrongAttemps = 0; // reset incorrect attempts state
-
         // css change to highlight correct and incorrect answer
         this.answerStatus = {
-          correct: allPossibleAnswers[correctAnswerIndex - 1],
+          correct: allPossibleAnswers[correctAnswerIndex],
           incorrect: submittedAnswer
         };
 
-        // emiting event to update the app state when answers was incorrect
-        this.getNextPossibleValidState(indexOfQuestionAnswered, false);
+        // play audio
+        this.vaultState$
+          .pipe(
+            take(1),
+            pluck('audio', 'incorrect')
+          )
+          .subscribe(audioName =>
+            this.audioService.play(`../assets/audio/sfx/${audioName}`)
+          );
       }
     }
-
-    setTimeout(() => {
-      this.answerStatus = {
-        correct: null,
-        incorrect: null
-      };
-    }, 100);
   }
 
   observeVocabularyStateChange() {
@@ -301,5 +339,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.vocabularySubscription.unsubscribe();
+    this.audioSubscription.unsubscribe();
   }
 }

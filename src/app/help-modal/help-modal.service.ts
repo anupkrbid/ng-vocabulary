@@ -1,4 +1,10 @@
-import { Injectable, Inject, OnInit, Injector, ComponentRef  } from '@angular/core';
+import {
+  Injectable,
+  Inject,
+  OnInit,
+  Injector,
+  ComponentRef
+} from '@angular/core';
 import { Overlay, OverlayConfig, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal, PortalInjector } from '@angular/cdk/portal';
 
@@ -26,9 +32,7 @@ const DEFAULT_CONFIG: HelpModalDialogConfig = {
 })
 export class HelpModalService {
   // Inject overlay and injector service
-  constructor(
-    private injector: Injector,
-    private overlay: Overlay) { }
+  constructor(private injector: Injector, private overlay: Overlay) {}
 
   open(config: HelpModalDialogConfig = {}) {
     // Override default configuration
@@ -37,13 +41,17 @@ export class HelpModalService {
     // Returns an OverlayRef (which is a PortalHost)
     const overlayRef = this.createOverlay(dialogConfig);
 
-    // Subscribe to a stream that emits when the backdrop was clicked
-    overlayRef.backdropClick().subscribe(() => dialogRef.close());
-
     // Instantiate remote control
     const dialogRef = new HelpModalOverlayRef(overlayRef);
 
-    const overlayComponent = this.attachDialogContainer(overlayRef, dialogConfig, dialogRef);
+    // Subscribe to a stream that emits when the backdrop was clicked
+    overlayRef.backdropClick().subscribe(() => dialogRef.close());
+
+    const overlayComponent = this.attachDialogContainer(
+      overlayRef,
+      dialogConfig,
+      dialogRef
+    );
 
     // Pass the instance of the overlay component to the remote control
     dialogRef.componentInstance = overlayComponent;
@@ -58,7 +66,10 @@ export class HelpModalService {
     return dialogRef;
   }
 
-  private createInjector(config: HelpModalDialogConfig, dialogRef: HelpModalOverlayRef): PortalInjector {
+  private createInjector(
+    config: HelpModalDialogConfig,
+    dialogRef: HelpModalOverlayRef
+  ): PortalInjector {
     // Instantiate new WeakMap for our custom injection tokens
     const injectionTokens = new WeakMap();
 
@@ -97,11 +108,21 @@ export class HelpModalService {
     return this.overlay.create(overlayConfig);
   }
 
-  private attachDialogContainer(overlayRef: OverlayRef, config: HelpModalDialogConfig, dialogRef: HelpModalOverlayRef) {
+  private attachDialogContainer(
+    overlayRef: OverlayRef,
+    config: HelpModalDialogConfig,
+    dialogRef: HelpModalOverlayRef
+  ) {
     const injector = this.createInjector(config, dialogRef);
 
-    const containerPortal = new ComponentPortal(HelpModalComponent, null, injector);
-    const containerRef: ComponentRef<HelpModalComponent> = overlayRef.attach(containerPortal);
+    const containerPortal = new ComponentPortal(
+      HelpModalComponent,
+      null,
+      injector
+    );
+    const containerRef: ComponentRef<HelpModalComponent> = overlayRef.attach(
+      containerPortal
+    );
 
     return containerRef.instance;
   }

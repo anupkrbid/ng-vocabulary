@@ -20,7 +20,6 @@ import { VaultService } from './vault.service';
   styleUrls: ['./vault.component.scss']
 })
 export class VaultComponent implements AfterViewInit, OnDestroy {
-
   @Input() width = 516;
   @Input() height = 418;
   @ViewChild('vault') canvas: ElementRef;
@@ -56,11 +55,9 @@ export class VaultComponent implements AfterViewInit, OnDestroy {
         this.sprite = new AnimatedSprite(0, 0, this.atlas, 'lock', this.ctx);
       });
 
-    this.animationSubscription =
-      this.vaultService.executeAnimation
-        .subscribe(
-          data => this.sprite.setFrameRangeAndAnimationEndCallback(data)
-        );
+    this.animationSubscription = this.vaultService.executeAnimation.subscribe(
+      data => this.sprite.setFrameRangeAndAnimationEndCallback(data)
+    );
   }
 
   loadAndDrawImage(url) {

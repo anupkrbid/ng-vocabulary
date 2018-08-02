@@ -5,6 +5,13 @@ import {
   OnDestroy,
   ViewChild
 } from '@angular/core';
+import {
+  animate,
+  AnimationEvent,
+  style,
+  transition,
+  trigger
+} from '@angular/animations';
 import { NgForm } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { map, tap, take, withLatestFrom, pluck, filter } from 'rxjs/operators';
@@ -29,7 +36,18 @@ const pickRandomAudio = audioArray => {
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  animations: [
+    trigger('slideInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('500ms ease-in', style({ opacity: 1 }))
+      ])
+      // transition(':leave', [
+      //   animate('200ms ease-in', style({ transform: 'translateY(-100%)' }))
+      // ])
+    ])
+  ]
 })
 export class AppComponent implements OnInit, OnDestroy {
   vaultState$: Observable<WordVault>;
@@ -335,6 +353,19 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe(audioName =>
         this.audioService.play(`../assets/audio/${audioName}`)
       );
+  }
+
+  animationStarted(event: AnimationEvent) {
+    if (!event.fromState) {
+      this.vaultState$
+        .pipe(
+          take(1),
+          pluck('audio', 'questionChange')
+        )
+        .subscribe(audioName =>
+          this.audioService.play(`../assets/audio/sfx/${audioName}`)
+        );
+    }
   }
 
   ngOnDestroy() {

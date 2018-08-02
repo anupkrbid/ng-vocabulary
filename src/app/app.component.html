@@ -29,7 +29,8 @@
     <section>
       <div *ngFor="let question of (vaultState$ | async)?.rounds[(appState$ | async)?.currentRound].questions; let i = index;">
 
-        <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((appState$ | async)?.currentQuestion - 1)">
+        <form #form="ngForm" (submit)="onSubmit(form, question, i)" *ngIf="i == ((appState$ | async)?.currentQuestion - 1)" @slideInOut
+          (@slideInOut.start)="animationStarted($event)">
 
           <h4>{{ question.text }}</h4>
 
